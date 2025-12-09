@@ -29,7 +29,7 @@ enum SROutcome: String, CaseIterable, Codable { //Serve or Receive Outcome - per
 enum ReceiveMade: String, CaseIterable, Codable {
     case made = "MADE"
     case miss = "MISS"
-    case oppMiss = "OPP MISS"
+    case oppMiss = "OPPONENT MISS"
 }
 
 enum ReceiveOutcome: String, CaseIterable, Codable {
@@ -75,7 +75,7 @@ enum ShotTrajectory: String, CaseIterable, Codable {
 }
 
 //Universal cases
-enum missedPosition: String, CaseIterable, Codable {
+enum MissedPosition: String, CaseIterable, Codable {
     case net = "NET"
     case long = "LONG"
     case wide = "WIDE"

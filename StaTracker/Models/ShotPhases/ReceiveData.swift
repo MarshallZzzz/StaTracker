@@ -11,6 +11,6 @@ struct ReceiveData: Codable {
     var made: ReceiveMade?
     var shotSide: PlayerShotSide?
     var trajectory: ShotTrajectory?
-    var miss: missedPosition?
+    var miss: MissedPosition?
     var outcome: ReceiveOutcome?
 }

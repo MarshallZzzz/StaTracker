@@ -8,6 +8,8 @@ struct ReceivePromptingView: View {
     
     let step: receivingPrompts
     @ObservedObject var fm: FlowViewModel
+    
+    @State private var receive = ReceiveData()
     @State private var serveNumber = 1
     @State private var made: Bool = false
     
@@ -19,117 +21,96 @@ struct ReceivePromptingView: View {
             case .receiveMade:
                 Text(serveNumber == 1 ? "First Serve Return" : "Second Serve Return")
                     .font(.title)
-                VStack{
+                EnumStepButtons(ReceiveMade.self) { value in
+                    receive.made = value
                     
-                    HStack {
-                        stepButton("Made") {
-                            //                        vm.log("Return Made", "Made", flow: "Receive")
-                            made = true
-                            fm.advance(.receive(.playerShotSide))
+                    if serveNumber == 1{
+                        fm.updateFirstReceive(receive)
+                        
+                        if value == .made {
+                            fm.currPoint.secondReceive = nil
                         }
-                        stepButton("Missed") {
-                            //                        vm.log("Return Missed", "Missed", flow: "Receive")
-                            made = false
-                            fm.advance(.receive(.playerShotSide))
-                        }
+                    } else {
+                        fm.updateSecondReceive(receive)
                     }
-                    stepButton("Opponent Missed"){
-                        serveNumber = 2
-                        fm.advance(.receive(.receiveMade))
-                    }
+                    
+                    fm.advance(.receive(.playerShotSide))
                 }
             case .playerShotSide:
                 Text("Player Position")
                     .font(.title)
-                
-                if made {
-                    HStack {
-                        stepButton("Forehand") {
-                            //vm.log("Return Missed", "Missed", flow: "Receive")
-                            fm.advance(.receive(.receivePosition))
-                        }
-                        stepButton("Backhand") {
-                            //vm.log("Return Missed", "Missed", flow: "Receive")
-                            fm.advance(.receive(.receivePosition))
-                        }
+                EnumStepButtons(PlayerShotSide.self){value in
+                    receive.shotSide = value
+                    
+                    if serveNumber == 1{
+                        fm.updateFirstReceive(receive)
+                    } else {
+                        fm.updateSecondReceive(receive)
                     }
-                } else {
-                    HStack{
-                        stepButton("Forehand") {
-                            //vm.log("Return Missed", "Missed", flow: "Receive")
-                            fm.advance(.receive(.missedPosition))
-                        }
-                        stepButton("Backhand") {
-                            //vm.log("Return Missed", "Missed", flow: "Receive")
-                            fm.advance(.receive(.missedPosition))
-                        }
+                    
+                    if receive.made == .made {
+                        fm.advance(.receive(.receivePosition))
+                    } else {
+                        fm.advance(.receive(.missedPosition))
                     }
                 }
+
                 
             case .receivePosition:
                 Text("Returned Position")
                     .font(.title)
-                HStack {
-                    pos("Cross Court")
-                    pos("Down Line")
+                EnumStepButtons(ShotTrajectory.self){value in
+                    receive.trajectory = value
+                    
+                    if serveNumber == 1{
+                        fm.updateFirstReceive(receive)
+                    } else {
+                        fm.updateSecondReceive(receive)
+                    }
+                    fm.advance(.receive(.receiveOutcome))
                 }
 
                 
             case .missedPosition:
                 Text("Missed Position")
                     .font(.title)
-                
-                VStack {
-                    HStack {
-                        missed("Net")
-                        missed("Long")
+                EnumStepButtons(MissedPosition.self){value in
+                    receive.miss = value
+                    
+                    if serveNumber == 1{
+                        fm.updateFirstReceive(receive)
+                        serveNumber = 2
+                        fm.advance(.receive(.receiveMade))
+                    } else {
+                        fm.updateSecondReceive(receive)
+                        fm.finishPoint()
                     }
-                    missed("Wide")
                 }
                 
             case .receiveOutcome:
                 Text("Return Outcome")
                     .font(.title)
                 
-                VStack {
-                    HStack {
-                        outcome("Winner")
-                        outcome("Forced Error")
+                EnumStepButtons(ReceiveOutcome.self){value in
+                    receive.outcome = value
+                    
+                    if serveNumber == 1{
+                        fm.updateFirstReceive(receive)
+                    } else {
+                        fm.updateSecondReceive(receive)
                     }
-                    HStack {
-                        outcome("Unforced Error")
-                        stepButton("RALLY") {
-//                            vm.log("Return Outcome", "Rally", flow: "Receive")
-                            fm.advance(.rally(.rallyOutcome))
-                        }
+                    
+                    if value == .rally{
+                        fm.advance(.rally(.rallyOutcome))
+                    } else {
+                        fm.currPoint.rally = nil
+                        fm.finishPoint()
                     }
                 }
                 
             default:
                 EmptyView()
             }
-        }
-    }
-    
-    private func pos(_ p: String) -> some View {
-        stepButton(p) {
-//            vm.log("Return Position", p, flow: "Receive")
-            fm.advance(.receive(.receiveOutcome))
-        }
-    }
-
-    
-    private func missed(_ p: String) -> some View {
-        stepButton(p) {
-//            vm.log("Missed Return", p, flow: "Receive")
-            fm.finishPoint()
-        }
-    }
-    
-    private func outcome(_ p: String) -> some View {
-        stepButton(p) {
-//            vm.log("Return Outcome", p, flow: "Receive")
-            fm.finishPoint()
         }
     }
 }

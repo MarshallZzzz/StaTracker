@@ -12,6 +12,6 @@ struct ServeData: Codable {
     var type: ServeType?
     var madePosition: ServePosition?
     var misType: ServeType?
-    var missPosition: missedPosition?
+    var missPosition: MissedPosition?
     var outcome: SROutcome?
 }

@@ -71,7 +71,7 @@ struct InGameView: View {
 
                 VStack(spacing: 20){
                     Text("Points")
-                    FlowControllerView(fm: fm)
+                    FlowControllerView(fm: fm, vm: vm)
 //                    if server == .curr{
 //                        ServePromptingView()
 //                    }

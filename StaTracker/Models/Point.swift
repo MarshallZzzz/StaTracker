@@ -15,14 +15,14 @@ struct Point: Identifiable, Codable {
     let server: ServingPlayer
     
     //Serve
-    var firstServe = ServeData()
-    var secondServe = ServeData()
+    var firstServe: ServeData? = nil
+    var secondServe: ServeData? = nil
     
     //REceive
-    var firstReceive = ReceiveData()
-    var secondReceive = ReceiveData()
+    var firstReceive: ReceiveData? = nil
+    var secondReceive: ReceiveData? = nil
     
     //Rally
-    var rally = RallyData()
+    var rally: RallyData? = nil
 }
 

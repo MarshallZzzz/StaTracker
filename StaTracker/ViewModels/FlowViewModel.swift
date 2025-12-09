@@ -18,35 +18,50 @@ class FlowViewModel: ObservableObject {
     @Published var state: PointFlowState = .start
     
     // History of user selections
-    @Published var history: [FlowHistoryEntry] = []
+//    @Published var history: [FlowHistoryEntry] = []
     
     // Progress percentage
     @Published var progress: CGFloat = 0.0
     
+    @Published var currPoint: Point
+    
     init(server: ServingPlayer) {
         self.server = server
+        self.currPoint = Point(server: server)
         startFlow()
     }
     
     // Start Correct Flow
     func startFlow() {
         if server == .curr {
+            currPoint.firstServe = ServeData()
             state = .serve(.serveMade)
         } else {
+            currPoint.firstReceive = ReceiveData()
             state = .receive(.receiveMade)
         }
         updateProgress()
     }
     
-    // Record an action
-    func log(_ prompt: String, value: String, flow: String) {
-        let entry = FlowHistoryEntry(
-            timestamp: Date(),
-            prompt: prompt,
-            value: value,
-            flow: flow
-        )
-        history.append(entry)
+    // MARK: - Assign values based on user input
+    func updateFirstServe(_ data: ServeData) {
+        currPoint.firstServe = data
+    }
+
+    func updateSecondServe(_ data: ServeData) {
+        currPoint.secondServe = data
+    }
+    
+    func updateFirstReceive(_ data: ReceiveData) {
+        currPoint.firstReceive = data
+    }
+    
+    func updateSecondReceive(_ data: ReceiveData) {
+        currPoint.secondReceive = data
+    }
+    
+    func updateRally(_ data: RallyData) {
+        currPoint.rally = data
     }
     
 //     Next step from serve, receive, or rally
@@ -57,6 +72,8 @@ class FlowViewModel: ObservableObject {
     
     func finishPoint() {
         state = .finished
+        
+        print("POINT COMPLETED:\n\(currPoint)")
     }
     
     // Calculate progress
@@ -88,10 +105,10 @@ enum PointFlowState {
     case finished
 }
 
-struct FlowHistoryEntry: Identifiable {
-    let id = UUID()
-    let timestamp: Date
-    let prompt: String
-    let value: String
-    let flow: String  // "Serve", "Receive", "Rally"
-}
+//struct FlowHistoryEntry: Identifiable {
+//    let id = UUID()
+//    let timestamp: Date
+//    let prompt: String
+//    let value: String
+//    let flow: String  // "Serve", "Receive", "Rally"
+//}

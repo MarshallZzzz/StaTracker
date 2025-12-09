@@ -21,12 +21,25 @@ struct ServePromptingView: View {
                 Text(serveNumber == 1 ? "First Serve" : "Second Serve")
                     .font(.title)
                 EnumStepButtons(ServeMade.self) { value in
-                    if value == .made {
-                        serve.made = .made
-                        fm.advance(.serve(.serveType))
+                    
+                    serve.made = value
+                    
+                    if serveNumber == 1{
+                        fm.updateFirstServe(serve)
+                        
+                        if value == .made{
+                            fm.currPoint.secondServe = nil
+                            fm.advance(.serve(.serveType))
+                            return
+                        }
                     } else {
-                        serve.made = .miss
-                        serveNumber = 2
+                        fm.updateSecondServe(serve)
+                        if value == .made{
+                            fm.advance(.serve(.serveType))
+                        }
+                    }
+                    
+                    if value == .miss {
                         fm.advance(.serve(.missedType))
                     }
                 }
@@ -35,131 +48,88 @@ struct ServePromptingView: View {
                 Text("Serve Type?")
                     .font(.title)
                 EnumStepButtons(ServeType.self) { value in
-                    if value == .flat {
-                        serve.type = .flat
-                        fm.advance(.serve(.servePosition))
-                    } else if value == .spin {
-                        serve.type = .spin
-                        fm.advance(.serve(.servePosition))
-                    } else if value == .slice {
-                        serve.type = .slice
-                        fm.advance(.serve(.servePosition))
+                    serve.type = value
+                    
+                    if serveNumber == 1{
+                        fm.updateFirstServe(serve)
                     } else {
-                        serve.type = .kick
-                        fm.advance(.serve(.servePosition))
+                        fm.updateSecondServe(serve)
                     }
+                    
+                    fm.advance(.serve(.servePosition))
                 }
 
-                
             case .servePosition:
                 Text("Serve Position?")
                     .font(.title)
                 EnumStepButtons(ServePosition.self) { value in
-                    if value == .wide {
-                        serve.madePosition = .wide
-                        fm.advance(.serve(.SROutcome))
-                    } else if value == .body {
-                        serve.madePosition = .body
-                        fm.advance(.serve(.SROutcome))
-                    } else if value == .T {
-                        serve.madePosition = .T
-                        fm.advance(.serve(.SROutcome))
+                    
+                    serve.madePosition = value
+                    
+                    if serveNumber == 1{
+                        fm.updateFirstServe(serve)
+                    } else {
+                        fm.updateSecondServe(serve)
                     }
+                    
+                    fm.advance(.serve(.SROutcome))
                 }
-
                 
             case .missedType:
                 Text("Serve Miss Type?")
                     .font(.title)
                 EnumStepButtons(ServeType.self) { value in
-                    if value == .flat {
-                        serve.misType = .flat
-                        fm.advance(.serve(.missedPosition))
-                    } else if value == .spin {
-                        serve.misType = .spin
-                        fm.advance(.serve(.missedPosition))
-                    } else if value == .slice {
-                        serve.misType = .slice
-                        fm.advance(.serve(.missedPosition))
+                    serve.misType = value
+                    
+                    if serveNumber == 1{
+                        fm.updateFirstServe(serve)
                     } else {
-                        serve.misType = .kick
-                        fm.advance(.serve(.missedPosition))
+                        fm.updateSecondServe(serve)
                     }
+                    
+                    fm.advance(.serve(.missedPosition))
                 }
                 
             case .missedPosition:
                 Text("Missed Position?")
                     .font(.title)
 
-                if serveNumber == 1{
-                    VStack {
-                        HStack {
-                            missedPos("Net")
-                            missedPos("Long")
-                        }
-                        missedPos("Wide")
+                EnumStepButtons(MissedPosition.self){ value in
+                    serve.missPosition = value
+                    
+                    if serveNumber == 1{
+                        fm.updateFirstServe(serve)
+                        fm.advance(.serve(.serveMade))
+                        serveNumber = 2
+                    } else {
+                        fm.updateSecondServe(serve)
+                        fm.finishPoint()
                     }
-                } else{
-                    VStack {
-                        HStack {
-                            doubleFault("Net")
-                            doubleFault("Long")
-                        }
-                        doubleFault("Wide")
-                    }
+
                 }
             case .SROutcome:
                 Text("Serve Outcome")
                     .font(.title)
-                
-                VStack {
-                    HStack {
-                        srOutcome("Ace")
-                        srOutcome("Forced Error")
+                EnumStepButtons(SROutcome.self) {value in
+                    serve.outcome = value
+                    
+                    if serveNumber == 1{
+                        fm.updateFirstServe(serve)
+                    } else {
+                        fm.updateSecondServe(serve)
                     }
-                    HStack {
-                        srOutcome("Unforced Error")
-                        stepButton("RALLY") {
-//                            vm.log("Serve Outcome", "Rally", flow: "Serve")
-                            fm.advance(.rally(.rallyOutcome))
-                        }
+                    
+                    if value == .rally {
+                        fm.advance(.rally(.rallyOutcome))
+                    } else {
+                        fm.currPoint.rally = nil
+                        fm.finishPoint()
                     }
                 }
-                
+
             default:
                 EmptyView()
             }
-        }
-    }
-    
-    private func missedType(_ type: String) -> some View {
-        stepButton(type) {
-//            vm.log("Miss Type", type, flow: "Serve")
-            fm.advance(.serve(.missedPosition))
-        }
-    }
-    
-    private func missedPos(_ pos: String) -> some View {
-        return stepButton(pos) {
-//            vm.log("Miss Position", pos, flow: "Serve")
-            serveNumber = 2
-            fm.advance(.serve(.serveMade))
-            
-        }
-    }
-
-    private func doubleFault(_ pos: String) -> some View {
-        stepButton(pos) {
-//            vm.log("Miss Position", pos, flow: "Serve")
-            fm.finishPoint()
-        }
-    }
-
-    
-    private func srOutcome(_ outcome: String) -> some View {
-        stepButton(outcome) {
-//            vm.log("Serve Outcome", outcome, flow: "Serve")
-            fm.finishPoint()
         }
     }
 }

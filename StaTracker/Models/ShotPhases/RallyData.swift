@@ -14,6 +14,6 @@ struct RallyData: Codable {
     var playerPosition: PlayerPosition?
     var type: ShotType?
     var trajectory: ShotTrajectory?
-    var missPosition: missedPosition?
+    var missPosition: MissedPosition?
     var rallyNumber: Int?
 }

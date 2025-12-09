@@ -27,4 +27,8 @@ struct Match: Identifiable, Codable {
         self.date = Date()
     }
     
+    mutating func addPoint(_ point: Point) {
+        points.append(point)
+    }
+    
 }
