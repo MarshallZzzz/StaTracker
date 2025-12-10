@@ -11,25 +11,21 @@ import Combine
 
 class FlowViewModel: ObservableObject {
     
+//    @ObservedObject var vm: MatchViewModel
     // External input: who's serving this point
     @Published var server: ServingPlayer   // .curr or .opp
     
     // Unified state machine
     @Published var state: PointFlowState = .start
-    
-    // History of user selections
-    //    @Published var history: [FlowHistoryEntry] = []
-    
-    // Progress percentage
-    @Published var progress: CGFloat = 0.0
+
     
     @Published var currPoint: Point
     
     var onPointFinished: ((Point) -> Void)?
     
     init(server: ServingPlayer) {
-        self.server = server
         self.currPoint = Point(server: server)
+        self.server = server
         startFlow()
     }
     
@@ -42,6 +38,10 @@ class FlowViewModel: ObservableObject {
             currPoint.firstReceive = ReceiveData()
             state = .receive(.receiveMade)
         }
+    }
+    
+    func updateServer(server: ServingPlayer){
+        self.server = server
     }
     
     // MARK: - Assign values based on user input
@@ -78,16 +78,11 @@ class FlowViewModel: ObservableObject {
         state = .finished
         
         print("POINT COMPLETED:\n\(currPoint)")
-        switchServerAfterGame()
         onPointFinished?(currPoint)
         
     }
     
-    private func switchServerAfterGame() {
-        server = server == .curr ? .opp : .curr
-    }
 }
-
 enum PointFlowState {
     case start
     case serve(servingPrompts)

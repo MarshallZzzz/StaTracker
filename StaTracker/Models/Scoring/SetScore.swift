@@ -16,7 +16,7 @@ struct SetScore: Codable {
     
     init(format: MatchFormat){
         self.format = format
-        self.games.append(GameScore(format: format, currPlayerPoints: 0, oppPlayerPoints: 0))
+//        self.games.append(GameScore(format: format, server: server, currPlayerPoints: 0, oppPlayerPoints: 0))
     }
     
     // Optional property to store tiebreak points if the set goes to a tiebreak
@@ -58,10 +58,5 @@ struct SetScore: Codable {
         
         return false
     }
-    
-    mutating func createNewGame(){
-        var game = GameScore(format: format, currPlayerPoints: 0, oppPlayerPoints: 0)
-    }
-    
     
 }

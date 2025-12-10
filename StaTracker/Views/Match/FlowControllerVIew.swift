@@ -7,7 +7,8 @@ import SwiftUI
 struct FlowControllerView: View {
     
     @ObservedObject var fm: FlowViewModel
-//    @StateObject var vm: MatchViewModel
+    @StateObject var vm: MatchViewModel
+    //@State var server: ServingPlayer
     
     var body: some View {
         

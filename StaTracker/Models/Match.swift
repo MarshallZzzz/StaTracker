@@ -17,14 +17,12 @@ struct Match: Identifiable, Codable {
     
     var score: MatchScore //the collection of scores
     var points: [Point] //collection of all the points
-    var server: ServingPlayer
     
-    init(currPlayer: String, oppPlayer: String, format: MatchFormat, server: ServingPlayer) {
+    init(currPlayer: String, oppPlayer: String, format: MatchFormat) {
         self.currPlayer = currPlayer
         self.oppPlayer = oppPlayer
         self.format = format
         self.score = MatchScore(format: format)
-        self.server = server
         self.points = []
         self.date = Date()
     }

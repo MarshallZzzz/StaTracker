@@ -29,8 +29,7 @@ struct MatchView: View {
     @State private var areAdsEnabled: Bool = true
     @State private var isFinalSet: Bool = true
     @State private var navigateToGame = false
-    
-    
+
     
     private var adTitle: String {areAdsEnabled ? "Ads" : "No Ads"}
     

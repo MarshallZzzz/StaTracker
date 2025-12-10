@@ -19,19 +19,18 @@ struct InGameView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                ScoreboardView(vm:vm, server: server)
+                ScoreboardView(vm:vm)
                 
                 VStack(spacing: 0){
-                    FlowControllerView(fm: fm)   // your flow UI
+                    FlowControllerView(fm: fm, vm: vm)   // your flow UI
                         .onAppear {
                             fm.onPointFinished = { point in
                                 // 1. Save to match
                                 vm.savePoint(point)
-//                                vm.processScoring(Point)
                                 
-                                switchServerAfterGame()
                                 // 2. Reset FlowViewModel for the next point
-                                fm.currPoint = Point(server: vm.match.server)
+                                fm.currPoint = Point(server: vm.server)
+                                fm.updateServer(server: vm.server)
                                 fm.startFlow()
                             }
                         }
@@ -42,10 +41,6 @@ struct InGameView: View {
                 }
             }
         }
-    }
-    
-    private func switchServerAfterGame() {
-        server = server == .curr ? .opp : .curr
     }
 }
 

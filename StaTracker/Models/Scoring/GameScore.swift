@@ -13,6 +13,7 @@ struct GameScore: Codable {
     let id = UUID()
     let format: MatchFormat
     
+    var server: ServingPlayer
     var currPlayerPoints: Int
     var oppPlayerPoints: Int
 

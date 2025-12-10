@@ -10,104 +10,208 @@ import SwiftUI
 
 struct ScoreboardView: View {
     @ObservedObject var vm: MatchViewModel
-    @State var server: ServingPlayer
+
     
-    let scoreMap: [Int: String] = [0: "0", 1: "15", 2: "30", 3: "40"]
-
-    var body: some View {
-        VStack(spacing: 12) {
-            
-            if let currentSet = vm.match.score.sets.last,
-               let currentGame = currentSet.games.last {
-                VStack {
-                    Text("Game Score")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white.opacity(0.8))
-                    HStack{
-                        VStack(spacing: 0) {
-                            Text("\(vm.currPlayer)")
-                                .font(.title3)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.white.opacity(0.8))
-                            
-                            //
-                            Text("\(scoreMap[currentGame.currPlayerPoints] ?? "0")")
-                                .font(.system(size: 100, weight: .bold))
-                                .foregroundStyle(.white)
-                            
-                            Text("🎾")
-                                .font(.system(size: 20))
-                                .opacity(server == .curr ? 1 : 0)
-                            
-                        }
-                        Rectangle()
-                            .fill(.white.opacity(0.5))
-                            .frame(height: 2)
-                            .frame(maxWidth: 50)
-                        VStack(spacing: 0) {
-                            Text("\(vm.oppPlayer)")
-                                .font(.title3)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.white.opacity(0.8))
-                            
-                            //
-                            Text("\(scoreMap[currentGame.oppPlayerPoints] ?? "0")")
-                                .font(.system(size: 100, weight: .bold))
-                                .foregroundStyle(.white)
-                            
-                            Text("🎾")
-                                .font(.system(size: 20))
-                                .opacity(server == .opp ? 1 : 0)
-                            
-                        }
-                    }
-                    
-                }
-            }
-        }
-        .padding()
-
-            ForEach(Array(vm.match.score.sets.enumerated()), id: \.offset) { index, set in
-                VStack {
-//                    Text("Set \(index + 1)")
-//                        .fontWeight(.semibold)
-//                        .foregroundStyle(.white.opacity(0.8))
-                    
-                    // Display games inline, ensuring alignment
-                    
-                    HStack{
-                        VStack(alignment: .leading){
-                            Text("")
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.white.opacity(0.8))
-                            Text("\(vm.currPlayer)")
-                                .font(.headline)
-//                                .fontWeight(.semibold)
-                                .foregroundStyle(.white.opacity(0.8))
-                            Text("\(vm.oppPlayer)")
-                                .font(.headline)
-//                                .fontWeight(.semibold)
-                                .foregroundStyle(.white.opacity(0.8))
-                        }
-                        Spacer()
-                        VStack{
-                            Text("Set \(index + 1)")
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.white.opacity(0.8))
-                            
-                            Text("\(set.currPlayerGames)")
-                                .font(.headline)
-                                .frame(width: 30) // Aligns with the current player's name
-                                .foregroundStyle(.white.opacity(0.8))
-                            Text("\(set.oppPlayerGames)")
-                                .font(.headline)
-                                .frame(width: 30) // Aligns with the opponent's name
-                                .foregroundStyle(.white.opacity(0.8))
-                        }
-                    }
-                }
-                .padding(.horizontal)
-            }
+    // MARK: - Constants
+    
+    private let scoreMap: [Int: String] = [
+        0: "0",
+        1: "15",
+        2: "30",
+        3: "40"
+    ]
+    
+    private enum Metrics {
+        static let mainSpacing: CGFloat = 20
+        static let gameScoreSize: CGFloat = 100
+        static let separatorWidth: CGFloat = 50
+        static let separatorHeight: CGFloat = 2
+        static let setColumnWidth: CGFloat = 40
+        static let tennisEmojiSize: CGFloat = 20
+        static let cornerRadius: CGFloat = 12
     }
+    
+    // MARK: - Body
+    
+    var body: some View {
+         VStack(spacing: Metrics.mainSpacing) {
+             currentGameScore
+             setsHistory
+         }
+         .padding()
+         .onAppear {
+             initializeGameIfNeeded()
+         }
+     }
+    
+    private func initializeGameIfNeeded() {
+         // Check if we need to create the first set and game
+         if vm.match.score.sets.isEmpty {
+             let newGame = GameScore(format: vm.match.format, server: vm.server, currPlayerPoints: 0, oppPlayerPoints: 0)
+             var newSet = SetScore(format: vm.match.format)
+             newSet.games.append(newGame)
+             vm.match.score.sets.append(newSet)
+         }
+         
+         // Check if the current set needs a game
+         if let currentSet = vm.match.score.sets.last,
+            currentSet.games.isEmpty {
+             let newGame = GameScore(format: vm.match.format, server: vm.server, currPlayerPoints: 0, oppPlayerPoints: 0)
+             vm.match.score.sets[vm.match.score.sets.count - 1].games.append(newGame)
+         }
+     }
+     // MARK: - Current Game Score
+     
+     @ViewBuilder
+     private var currentGameScore: some View {
+         if let currentSet = vm.match.score.sets.last,
+            let currentGame = currentSet.games.last {
+             VStack(spacing: 16) {
+                 sectionHeader(title: "Game Score")
+                 
+                 HStack(spacing: 24) {
+                     playerGameScore(
+                        name: vm.currPlayer,
+                        score: scoreMap[currentGame.currPlayerPoints] ?? "0",
+                        isServing: vm.server == .curr
+                     )
+                     
+                     scoreSeparator
+                     
+                     playerGameScore(
+                        name: vm.oppPlayer,
+                        score: scoreMap[currentGame.oppPlayerPoints] ?? "0",
+                        isServing: vm.server == .opp
+                     )
+                 }
+             }
+             .padding(.bottom, 8)
+         }
+         
+     }
+    
+    private func getCurrentOrCreateSet() -> SetScore {
+        if let lastSet = vm.match.score.sets.last {
+            return lastSet
+        } else {
+            // Create first set
+            let newSet = SetScore(format: vm.match.format)
+            vm.match.score.sets.append(newSet)
+            return newSet
+        }
+    }
+    
+    private func getCurrentOrCreateGame(in set: SetScore) -> GameScore {
+        if let lastGame = set.games.last {
+            return lastGame
+        } else {
+            // Create first game
+            let newGame = GameScore(format: vm.match.format, server: vm.server, currPlayerPoints: 0, oppPlayerPoints: 0)
+            if let index = vm.match.score.sets.firstIndex(where: { $0.id == set.id }) {
+                vm.match.score.sets[index].games.append(newGame)
+            }
+            return newGame
+        }
+    }
+     
+     private func playerGameScore(name: String, score: String, isServing: Bool) -> some View {
+         VStack(spacing: 8) {
+             Text(name)
+                 .font(.title3)
+                 .fontWeight(.semibold)
+                 .foregroundStyle(.white.opacity(0.8))
+             
+             Text(score)
+                 .font(.system(size: Metrics.gameScoreSize, weight: .bold))
+                 .foregroundStyle(.white)
+             
+             Text("🎾")
+                 .font(.system(size: Metrics.tennisEmojiSize))
+                 .opacity(isServing ? 1 : 0)
+         }
+     }
+     
+     private var scoreSeparator: some View {
+         Rectangle()
+             .fill(.white.opacity(0.3))
+             .frame(width: Metrics.separatorWidth, height: Metrics.separatorHeight)
+     }
+    // MARK: - Sets History
+    
+    @ViewBuilder
+    private var setsHistory: some View {
+        if !vm.match.score.sets.isEmpty {
+            VStack(spacing: 12) {
+                ForEach(Array(vm.match.score.sets.enumerated()), id: \.offset) { index, set in
+                    setRow(index: index, set: set)
+                }
+            }
+            .padding(.vertical, 16)
+            .padding(.horizontal, 20)
+            .background(
+                RoundedRectangle(cornerRadius: Metrics.cornerRadius)
+                    .fill(.white.opacity(0.08))
+            )
+        }
+    }
+    
+    private func setRow(index: Int, set: SetScore) -> some View {
+        HStack(spacing: 16) {
+            // Player names column
+            VStack(alignment: .leading, spacing: 10) {
+                if index == 0 {
+                    headerSpacer
+                }
+                playerNameLabel(vm.currPlayer)
+                playerNameLabel(vm.oppPlayer)
+            }
+            
+            Spacer()
+            
+            // Set scores column
+            VStack(spacing: 10) {
+                Text("Set \(index + 1)")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white.opacity(0.6))
+                
+                setScoreLabel(set.currPlayerGames)
+                setScoreLabel(set.oppPlayerGames)
+            }
+            .frame(width: Metrics.setColumnWidth)
+        }
+    }
+    
+    private var headerSpacer: some View {
+        Text("")
+            .font(.subheadline)
+    }
+    
+    private func playerNameLabel(_ name: String) -> some View {
+        Text(name)
+            .font(.headline)
+            .foregroundStyle(.white.opacity(0.9))
+    }
+    
+    private func setScoreLabel(_ score: Int) -> some View {
+        Text("\(score)")
+            .font(.headline)
+            .fontWeight(.semibold)
+            .foregroundStyle(.white)
+            .frame(width: Metrics.setColumnWidth)
+    }
+    
+    private func sectionHeader(title: String) -> some View {
+        Text(title)
+            .font(.title2)
+            .fontWeight(.semibold)
+            .foregroundStyle(.white.opacity(0.8))
+    }
+}
+
+// MARK: - Supporting Types
+
+struct SetScores {
+    let currPlayerGames: Int
+    let oppPlayerGames: Int
 }
