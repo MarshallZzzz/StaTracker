@@ -16,6 +16,7 @@ import Foundation
 
 struct MatchScore: Codable {
     var sets: [SetScore] = []
+    var currSetNum: Int = 0
     
     let matchFormat: MatchFormat
     
@@ -45,6 +46,10 @@ struct MatchScore: Codable {
         }
         
         return nil
+    }
+    
+    mutating func createNewSet(){
+        var set = SetScore(format: matchFormat)
     }
     
 }

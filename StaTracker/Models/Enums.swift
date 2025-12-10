@@ -58,15 +58,15 @@ enum PlayerPosition: String, CaseIterable, Codable {
 }
 
 enum ShotType: String, CaseIterable, Codable {
-    case groundstroke = "GROUNDSTROKE"
+    case smash = "SMASH"
+    case volley = "VOLLEY"
+    case driveVolley = "DRIVE VOLLEY"
+    case approach = "APPROACH"
+    case halfVolley = "HALF VOLLEY"
+    case dropShot = "DROP SHOT"
     case slice = "SLICE"
     case lob = "LOB"
-    case approach = "APPROACH"
-    case driveVolley = "DRIVE VOLLEY"
-    case halfVolley = "HALF VOLLEY"
-    case volley = "VOLLEY"
-    case smash = "SMASH"
-    case dropShot = "DROP SHOT"
+    case groundstroke = "GROUNDSTROKE"
 }
 
 enum ShotTrajectory: String, CaseIterable, Codable {

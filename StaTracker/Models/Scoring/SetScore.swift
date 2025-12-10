@@ -14,6 +14,11 @@ struct SetScore: Codable {
     var oppPlayerGames: Int = 0
     var winner: Winner? = nil
     
+    init(format: MatchFormat){
+        self.format = format
+        self.games.append(GameScore(format: format, currPlayerPoints: 0, oppPlayerPoints: 0))
+    }
+    
     // Optional property to store tiebreak points if the set goes to a tiebreak
     // This only has a value when a tiebreak is active or completed.
     var tieBreakScore: tieBreakScore? = nil
@@ -53,4 +58,10 @@ struct SetScore: Codable {
         
         return false
     }
+    
+    mutating func createNewGame(){
+        var game = GameScore(format: format, currPlayerPoints: 0, oppPlayerPoints: 0)
+    }
+    
+    
 }

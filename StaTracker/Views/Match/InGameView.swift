@@ -19,74 +19,37 @@ struct InGameView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                HStack(spacing: 12) {
-                    Spacer()
-                    // Current Player
-                    VStack(spacing: 0) {
-                        Text("\(vm.currPlayer)")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.white.opacity(0.8))
-                        
-                        //
-                        Text("0")
-                            .font(.system(size: 100, weight: .bold))
-                            .foregroundStyle(.white)
-                        
-                        Text("🎾")
-                            .font(.system(size: 20))
-                            .opacity(server == .curr ? 1 : 0)
-                        
-                    }
-                    
-                    // Divider
-                    Rectangle()
-                        .fill(.white.opacity(0.5))
-                        .frame(height: 2)
-                        .frame(maxWidth: 50)
-                    
-                    // Opponent Player
-                    VStack(spacing: 0) {
-                        Text("\(vm.oppPlayer)")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.white.opacity(0.8))
-                        
-                        Text("0")
-                            .font(.system(size: 100, weight: .bold))
-                            .foregroundStyle(.white)
-                        
-                        Text("🎾")
-                            .font(.system(size: 20))
-                            .opacity(server == .opp ? 1 : 0)
-
-                    }
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
-                .padding(.top, 60)
-                .padding(.bottom, 20)
-
-                VStack(spacing: 20){
-                    Text("Points")
-                    FlowControllerView(fm: fm, vm: vm)
-//                    if server == .curr{
-//                        ServePromptingView()
-//                    }
-//                    else{
-//                        ReceivePromptingView()
-//                    }
-                }
-                .padding()
-                .foregroundStyle(.white)
+                ScoreboardView(vm:vm, server: server)
                 
+                VStack(spacing: 0){
+                    FlowControllerView(fm: fm)   // your flow UI
+                        .onAppear {
+                            fm.onPointFinished = { point in
+                                // 1. Save to match
+                                vm.savePoint(point)
+//                                vm.processScoring(Point)
+                                
+                                switchServerAfterGame()
+                                // 2. Reset FlowViewModel for the next point
+                                fm.currPoint = Point(server: vm.match.server)
+                                fm.startFlow()
+                            }
+                        }
+                    
+                        .padding()
+                        .foregroundStyle(.white)
+                    
+                }
             }
         }
-        
+    }
+    
+    private func switchServerAfterGame() {
+        server = server == .curr ? .opp : .curr
     }
 }
+
+
 
 
 //#Preview{

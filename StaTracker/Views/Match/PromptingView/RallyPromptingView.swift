@@ -37,6 +37,7 @@ struct RallyPromtpingView: View {
                     
                     if rally.outcome == .win{
                         if value == .unforcedError{
+                            fm.setWinner(.currPlayer)
                             fm.finishPoint()
                         }
                         else{
@@ -46,6 +47,7 @@ struct RallyPromtpingView: View {
                         if value == .unforcedError{
                             fm.advance(.rally(.playerShotSide))
                         } else {
+                            fm.setWinner(.oppPlayer)
                             fm.finishPoint()
                         }
                     }
@@ -90,6 +92,7 @@ struct RallyPromtpingView: View {
                     fm.updateRally(rally)
                     
                     if rally.outcome == .win{
+                        fm.setWinner(.currPlayer)
                         fm.finishPoint()
                     } else {
                         fm.advance(.rally(.missedPosition))
@@ -102,6 +105,7 @@ struct RallyPromtpingView: View {
                 EnumStepButtons(MissedPosition.self){value in
                     rally.missPosition = value
                     fm.updateRally(rally)
+                    fm.setWinner(.oppPlayer)
                     fm.finishPoint()
                 }
                 

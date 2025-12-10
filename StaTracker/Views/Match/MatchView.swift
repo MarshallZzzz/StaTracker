@@ -194,6 +194,7 @@ struct MatchView: View {
                                 vm: MatchViewModel( // Initialize the VM here with the final data
                                     currPlayer: yourPlayer,
                                     oppPlayer: yourOpponent,
+                                    server: server,
                                     selectedFormat: MatchFormat(scoringType: ad, setFormat: setFormat, finalSetFormat: finale )),
                                 fm: FlowViewModel(server: server),
                                 server: server

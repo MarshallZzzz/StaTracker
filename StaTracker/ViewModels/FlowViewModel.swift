@@ -18,12 +18,14 @@ class FlowViewModel: ObservableObject {
     @Published var state: PointFlowState = .start
     
     // History of user selections
-//    @Published var history: [FlowHistoryEntry] = []
+    //    @Published var history: [FlowHistoryEntry] = []
     
     // Progress percentage
     @Published var progress: CGFloat = 0.0
     
     @Published var currPoint: Point
+    
+    var onPointFinished: ((Point) -> Void)?
     
     init(server: ServingPlayer) {
         self.server = server
@@ -40,14 +42,13 @@ class FlowViewModel: ObservableObject {
             currPoint.firstReceive = ReceiveData()
             state = .receive(.receiveMade)
         }
-        updateProgress()
     }
     
     // MARK: - Assign values based on user input
     func updateFirstServe(_ data: ServeData) {
         currPoint.firstServe = data
     }
-
+    
     func updateSecondServe(_ data: ServeData) {
         currPoint.secondServe = data
     }
@@ -64,36 +65,26 @@ class FlowViewModel: ObservableObject {
         currPoint.rally = data
     }
     
-//     Next step from serve, receive, or rally
+    func setWinner(_ win: Winner){
+        currPoint.playerWon = win
+    }
+    
+    //Next step from serve, receive, or rally
     func advance(_ next: PointFlowState) {
         state = next
-        updateProgress()
     }
     
     func finishPoint() {
         state = .finished
         
         print("POINT COMPLETED:\n\(currPoint)")
+        switchServerAfterGame()
+        onPointFinished?(currPoint)
+        
     }
     
-    // Calculate progress
-    func updateProgress() {
-        let totalSteps: CGFloat = 10  // Adjust if adding more
-        let current: CGFloat
-        
-        switch state {
-        case .start: current = 0
-        case .serve(let step):
-            current = step.progressIndex
-        case .receive(let step):
-            current = step.progressIndex
-        case .rally(let step):
-            current = step.progressIndex
-        case .finished:
-            current = totalSteps
-        }
-        
-        progress = current / totalSteps
+    private func switchServerAfterGame() {
+        server = server == .curr ? .opp : .curr
     }
 }
 

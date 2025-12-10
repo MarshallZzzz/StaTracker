@@ -103,6 +103,8 @@ struct ServePromptingView: View {
                         serveNumber = 2
                     } else {
                         fm.updateSecondServe(serve)
+                        fm.setWinner(.oppPlayer)
+                        serveNumber = 1
                         fm.finishPoint()
                     }
 
@@ -116,6 +118,7 @@ struct ServePromptingView: View {
                     if serveNumber == 1{
                         fm.updateFirstServe(serve)
                     } else {
+                        serveNumber = 1
                         fm.updateSecondServe(serve)
                     }
                     
@@ -123,6 +126,7 @@ struct ServePromptingView: View {
                         fm.advance(.rally(.rallyOutcome))
                     } else {
                         fm.currPoint.rally = nil
+                        fm.setWinner(.currPlayer)
                         fm.finishPoint()
                     }
                 }

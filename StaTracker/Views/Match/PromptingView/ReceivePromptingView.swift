@@ -83,6 +83,8 @@ struct ReceivePromptingView: View {
                         fm.advance(.receive(.receiveMade))
                     } else {
                         fm.updateSecondReceive(receive)
+                        fm.setWinner(.oppPlayer)
+                        serveNumber = 1
                         fm.finishPoint()
                     }
                 }
@@ -97,6 +99,7 @@ struct ReceivePromptingView: View {
                     if serveNumber == 1{
                         fm.updateFirstReceive(receive)
                     } else {
+                        serveNumber = 1
                         fm.updateSecondReceive(receive)
                     }
                     
@@ -104,6 +107,7 @@ struct ReceivePromptingView: View {
                         fm.advance(.rally(.rallyOutcome))
                     } else {
                         fm.currPoint.rally = nil
+                        fm.setWinner(.currPlayer)
                         fm.finishPoint()
                     }
                 }

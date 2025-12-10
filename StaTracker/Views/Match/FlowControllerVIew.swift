@@ -7,19 +7,11 @@ import SwiftUI
 struct FlowControllerView: View {
     
     @ObservedObject var fm: FlowViewModel
-    @StateObject var vm: MatchViewModel
+//    @StateObject var vm: MatchViewModel
     
     var body: some View {
         
         VStack {
-            
-            // Progress Bar
-            ProgressView(value: fm.progress)
-                .tint(.green)
-                .padding()
-            
-            Spacer()
-            
             switch fm.state {
                 
             case .serve(let step):
@@ -46,6 +38,5 @@ struct FlowControllerView: View {
             
             Spacer()
         }
-//        .animation(.easeInOut(duration: 0.25), value: vm.state)
     }
 }

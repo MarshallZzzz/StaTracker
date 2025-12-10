@@ -24,5 +24,6 @@ struct Point: Identifiable, Codable {
     
     //Rally
     var rally: RallyData? = nil
+    var playerWon: Winner? = nil
 }
 
