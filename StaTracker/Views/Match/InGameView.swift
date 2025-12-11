@@ -34,10 +34,8 @@ struct InGameView: View {
                                 fm.startFlow()
                             }
                         }
-                    
                         .padding()
                         .foregroundStyle(.white)
-                    
                 }
             }
         }

@@ -17,7 +17,6 @@ class MatchViewModel: ObservableObject {
     let currPlayer: String
     let oppPlayer: String
     let selectedFormat: MatchFormat
-    var matchOver: Bool = false
 
     
     init(currPlayer: String, oppPlayer: String, server: ServingPlayer, selectedFormat: MatchFormat) {
@@ -80,26 +79,33 @@ class MatchViewModel: ObservableObject {
             set.oppPlayerGames += 1
         }
         
-        matchOver = true
         switchServerAfterGame()
+
+        if set.isSetComplete(format: match.format) {
+            // Set has a winner
+            print("IN SET COMPLETE!!!")
+            //check if Match is over
+            if match.score.isMatchOver(){
+                //display win?
+                print("MATCH OVAAAA!")
+            }
+            else{
+                match.score.createNewSet()
+            }
+            
+//            if set.winner == .currPlayer || set.winner == .oppPlayer {
+//                Move to next set if match not over
+//                                        if !match.score.isMatchOver() {
+//                    match.score.sets.append(SetScore(format: match.format))
+//                }
+//            }
+        }
 
         // start new game
         set.games.append(GameScore(format: selectedFormat,
                                    server: server,
                                    currPlayerPoints: 0,
                                    oppPlayerPoints: 0))
-        
-        // Check if set is finished
-        // Update to reflect match format
-        if set.isSetComplete(format: match.format) {
-            // Set has a winner
-            if set.winner == .currPlayer || set.winner == .oppPlayer {
-                // Move to next set if match not over
-                if !match.score.isMatchOver() {
-                    match.score.sets.append(SetScore(format: match.format))
-                }
-            }
-        }
     }
     
     private func isGameOver(game: GameScore) -> Bool {
@@ -112,7 +118,10 @@ class MatchViewModel: ObservableObject {
             return p1 >= 4 || p2 >= 4
         case .ad:
             // Win by 2, but games essentially end at “Game Over”
-            return p1 >= 4 || p2 >= 4
+            if p1 >= 4 || p2 >= 4 {
+                return abs(p1 - p2) >= 2
+            }
+            return false
         }
     }
     

@@ -18,8 +18,10 @@ struct ScoreboardView: View {
         0: "0",
         1: "15",
         2: "30",
-        3: "40"
+        3: "40",
+        4: "Ad"
     ]
+ 
     
     private enum Metrics {
         static let mainSpacing: CGFloat = 20
@@ -70,19 +72,25 @@ struct ScoreboardView: View {
                  sectionHeader(title: "Game Score")
                  
                  HStack(spacing: 24) {
-                     playerGameScore(
-                        name: vm.currPlayer,
-                        score: scoreMap[currentGame.currPlayerPoints] ?? "0",
-                        isServing: vm.server == .curr
-                     )
+
+                     if currentGame.format.scoringType == .ad && currentGame.currPlayerPoints >= 3 && currentGame.oppPlayerPoints >= 3 {
+                         setDeuce(difference: currentGame.currPlayerPoints - currentGame.oppPlayerPoints)
+                     } else{
+                         playerGameScore(
+                            name: vm.currPlayer,
+                            score: scoreMap[currentGame.currPlayerPoints] ?? "0",
+                            isServing: vm.server == .curr
+                         )
+                         
+                         scoreSeparator
+                         
+                         playerGameScore(
+                            name: vm.oppPlayer,
+                            score: scoreMap[currentGame.oppPlayerPoints] ?? "0",
+                            isServing: vm.server == .opp
+                         )
+                     }
                      
-                     scoreSeparator
-                     
-                     playerGameScore(
-                        name: vm.oppPlayer,
-                        score: scoreMap[currentGame.oppPlayerPoints] ?? "0",
-                        isServing: vm.server == .opp
-                     )
                  }
              }
              .padding(.bottom, 8)
@@ -114,7 +122,7 @@ struct ScoreboardView: View {
         }
     }
      
-     private func playerGameScore(name: String, score: String, isServing: Bool) -> some View {
+    private func playerGameScore(name: String, score: String, isServing: Bool) -> some View {
          VStack(spacing: 8) {
              Text(name)
                  .font(.title3)
@@ -141,7 +149,15 @@ struct ScoreboardView: View {
     @ViewBuilder
     private var setsHistory: some View {
         if !vm.match.score.sets.isEmpty {
-            VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 10) {
+                    headerSpacer
+                    playerNameLabel(vm.currPlayer)
+                    playerNameLabel(vm.oppPlayer)
+                }
+                
+                Spacer()
+                
                 ForEach(Array(vm.match.score.sets.enumerated()), id: \.offset) { index, set in
                     setRow(index: index, set: set)
                 }
@@ -156,30 +172,18 @@ struct ScoreboardView: View {
     }
     
     private func setRow(index: Int, set: SetScore) -> some View {
-        HStack(spacing: 16) {
-            // Player names column
-            VStack(alignment: .leading, spacing: 10) {
-                if index == 0 {
-                    headerSpacer
-                }
-                playerNameLabel(vm.currPlayer)
-                playerNameLabel(vm.oppPlayer)
-            }
+        // Set scores column
+        VStack(spacing: 10) {
+            Text("Set \(index + 1)")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white.opacity(0.6))
             
-            Spacer()
-            
-            // Set scores column
-            VStack(spacing: 10) {
-                Text("Set \(index + 1)")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.white.opacity(0.6))
-                
-                setScoreLabel(set.currPlayerGames)
-                setScoreLabel(set.oppPlayerGames)
-            }
-            .frame(width: Metrics.setColumnWidth)
+            setScoreLabel(set.currPlayerGames)
+            setScoreLabel(set.oppPlayerGames)
         }
+        .frame(width: Metrics.setColumnWidth)
+        //        }
     }
     
     private var headerSpacer: some View {
@@ -206,6 +210,24 @@ struct ScoreboardView: View {
             .font(.title2)
             .fontWeight(.semibold)
             .foregroundStyle(.white.opacity(0.8))
+    }
+    
+    private func setDeuce(difference: Int) -> some View{
+
+        if difference == 1 { // curpplayer is up
+            Text("Ad - In")
+                .font(.system(size: Metrics.gameScoreSize, weight: .bold))
+                .foregroundStyle(.white)
+        } else if difference == 1 { // curpplayer is up
+            Text("Ad - In")
+                .font(.system(size: Metrics.gameScoreSize, weight: .bold))
+                .foregroundStyle(.white)
+        } else {
+            Text("Deuce")
+                .font(.system(size: Metrics.gameScoreSize, weight: .bold))
+                .foregroundStyle(.white)
+        }
+        
     }
 }
 

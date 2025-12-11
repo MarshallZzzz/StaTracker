@@ -16,6 +16,8 @@ struct SetScore: Codable {
     
     init(format: MatchFormat){
         self.format = format
+        self.currPlayerGames = 0
+        self.oppPlayerGames = 0
 //        self.games.append(GameScore(format: format, server: server, currPlayerPoints: 0, oppPlayerPoints: 0))
     }
     
@@ -31,32 +33,21 @@ struct SetScore: Codable {
         let gamesToWin = format.gamesPerSetToWin
         let tiebreakAt = format.playTieBreakAt
         
-        // Check if tiebreak points decided the set
-        if let tiebreak = tieBreakScore {
-            let pointsToWin = (format.finalSetFormat == .matchTiebreak) ? 10 : 7
-            // Check tiebreak win condition (win by 2 points)
-            if (tiebreak.p1 >= pointsToWin || tiebreak.p2 >= pointsToWin) && abs(tiebreak.p1 - tiebreak.p2) >= 2 {
-                self.winner = (tiebreak.p1 > tiebreak.p2) ? .currPlayer : .oppPlayer
+        //standard set checks
+        if (p1 >= gamesToWin || p2 >= gamesToWin){
+            if (p1 == tiebreakAt && p2 == tiebreakAt){
+                //add tiebreak
+                return false
+            }
+            else {
+                if p1 > p2{
+                    winner = .currPlayer
+                } else {winner = .oppPlayer}
                 return true
             }
         }
-        
-        // Check standard set win condition (win by 2 games)
-        let standardWin = (p1 >= gamesToWin || p2 >= gamesToWin) && abs(p1 - p2) >= 2
-        
-        // Check if the score is exactly at the tiebreak threshold (e.g., 6-6)
-        let isAtTiebreakScore = p1 == tiebreakAt && p2 == tiebreakAt
-        
-        if standardWin {
-            self.winner = (p1 > p2) ? .currPlayer : .oppPlayer
-            return true
-        } else if isAtTiebreakScore && tieBreakScore != nil {
-            // Set is complete via tiebreak logic handled above
-            self.winner = (p1 > p2) ? .currPlayer : .oppPlayer
-            return true
-        }
-        
-        return false
+
+        return true
     }
     
 }

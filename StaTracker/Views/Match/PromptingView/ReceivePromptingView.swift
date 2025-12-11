@@ -29,9 +29,21 @@ struct ReceivePromptingView: View {
                         
                         if value == .made {
                             fm.currPoint.secondReceive = nil
+                        } else if value == .oppMiss {   // if opponents misses, automatically jumpt to the second
+                            serveNumber = 2
+                            return
+                        } else {
+                            fm.advance(.receive(.playerShotSide))
                         }
                     } else {
                         fm.updateSecondReceive(receive)
+                        
+                        if value == .oppMiss { //second serve, if they miss against then win point
+                            serveNumber = 1
+                            fm.setWinner(.currPlayer)
+                            fm.finishPoint()
+                            return
+                        }
                     }
                     
                     fm.advance(.receive(.playerShotSide))
@@ -50,7 +62,7 @@ struct ReceivePromptingView: View {
                     
                     if receive.made == .made {
                         fm.advance(.receive(.receivePosition))
-                    } else {
+                    } else if receive.made == .miss {
                         fm.advance(.receive(.missedPosition))
                     }
                 }
@@ -76,11 +88,11 @@ struct ReceivePromptingView: View {
                     .font(.title)
                 EnumStepButtons(MissedPosition.self){value in
                     receive.miss = value
-                    
+        
                     if serveNumber == 1{
                         fm.updateFirstReceive(receive)
-                        serveNumber = 2
-                        fm.advance(.receive(.receiveMade))
+                        fm.setWinner(.oppPlayer)
+                        fm.finishPoint()
                     } else {
                         fm.updateSecondReceive(receive)
                         fm.setWinner(.oppPlayer)
