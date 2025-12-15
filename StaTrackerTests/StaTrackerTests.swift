@@ -75,8 +75,8 @@ struct StaTrackerTests {
         //Assert
         //check if the current game is the right one
         #expect(currGame.isGameOver() == true, "game should be over")
-//        #expect(match.server == .opp, "serve should be switched")
-//        #expect(currSet.currPlayerGames == 1, "curr player should have won first game")
+        #expect(match.server == .opp, "serve should be switched")
+        #expect(currSet.currPlayerGames == 1, "curr player should have won first game")
     }
 //    
 //    //Test Set Complete

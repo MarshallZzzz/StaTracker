@@ -78,7 +78,7 @@ struct ScoreboardView: View {
                          playerGameScore(
                             name: vm.currPlayer,
                             score: scoreMap[currentGame.currPlayerPoints] ?? "0",
-                            isServing: vm.server == .curr
+                            isServing: vm.match.server == .curr
                          )
                          
                          scoreSeparator
@@ -86,7 +86,7 @@ struct ScoreboardView: View {
                          playerGameScore(
                             name: vm.oppPlayer,
                             score: scoreMap[currentGame.oppPlayerPoints] ?? "0",
-                            isServing: vm.server == .opp
+                            isServing: vm.match.server == .opp
                          )
                      }
                      
@@ -217,8 +217,8 @@ struct ScoreboardView: View {
             Text("Ad - In")
                 .font(.system(size: Metrics.gameScoreSize, weight: .bold))
                 .foregroundStyle(.white)
-        } else if difference == 1 { // curpplayer is up
-            Text("Ad - In")
+        } else if difference == -1 { // curpplayer is up
+            Text("Ad - Out")
                 .font(.system(size: Metrics.gameScoreSize, weight: .bold))
                 .foregroundStyle(.white)
         } else {

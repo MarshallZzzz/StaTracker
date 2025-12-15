@@ -2,8 +2,8 @@
 import SwiftUI
 
 struct InGameView: View {
-    @StateObject var vm: MatchViewModel
-    @StateObject var fm: FlowViewModel
+    @ObservedObject var vm: MatchViewModel
+    @ObservedObject var fm: FlowViewModel
     
     @State var server: Player
     
@@ -26,11 +26,12 @@ struct InGameView: View {
                         .onAppear {
                             fm.onPointFinished = { point in
                                 // 1. Save to match
-                                vm.savePoint(point)
+                                vm.match.addPoint(point)
+                                server = vm.match.server
                                 
                                 // 2. Reset FlowViewModel for the next point
-//                                fm.currPoint = Point(server: vm.server)
-                                fm.updateServer(server: vm.server)
+                                fm.currPoint = Point(server: vm.server)
+//                                fm.updateServer(server: vm.server)
                                 fm.startFlow()
                             }
                         }

@@ -111,7 +111,7 @@ struct Match: Identifiable, Codable {
 
         //update current game
         currentSet.games[currentSet.games.count - 1] = currentGame
-        score.sets[score.sets.count - 1] = currentSet
+//        score.sets[score.sets.count - 1] = currentSet
         print("I'm here with: \(currentGame.currPlayerPoints)")
         print("Checing Match machine: \(score.sets[score.sets.count - 1])")
         
@@ -122,6 +122,7 @@ struct Match: Identifiable, Codable {
             if winner == .curr{
                 currentSet.currGameWon()
             } else { currentSet.oppGameWon()}
+            score.sets[score.sets.count - 1] = currentSet
             
             if currentSet.isSetComplete(format: format){        //check if set is over
                 
