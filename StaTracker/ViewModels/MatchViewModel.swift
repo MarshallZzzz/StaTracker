@@ -1,6 +1,9 @@
 //
 //  MatchViewModel.swift
 //  StaTracker
+
+// MANAGE THE FLOW OF THE MATCH STATE
+// HOW TO  PRESENT THE MODEL DATA?
 //
 //  Created by Marshall Zhang on 12/1/25.
 //
@@ -12,31 +15,31 @@ import Combine
 @MainActor
 class MatchViewModel: ObservableObject {
     @Published var match: Match
-    @Published var server: ServingPlayer
+    @Published var server: Player
     
     let currPlayer: String
     let oppPlayer: String
     let selectedFormat: MatchFormat
 
     
-    init(currPlayer: String, oppPlayer: String, server: ServingPlayer, selectedFormat: MatchFormat) {
+    init(currPlayer: String, oppPlayer: String, server: Player, selectedFormat: MatchFormat) {
         self.currPlayer = currPlayer
         self.oppPlayer = oppPlayer
         self.selectedFormat = selectedFormat
         self.server = server
-        self.match = Match(currPlayer: currPlayer, oppPlayer: oppPlayer, format: selectedFormat)
+        self.match = Match(currPlayer: currPlayer, oppPlayer: oppPlayer, startingServer: server, format: selectedFormat)
     }
     
+    func updateServer(server: Player){
+        self.server = server
+    }
 
     func savePoint(_ point: Point) {
-        match.addPoint(point)
+//        match.addPoint(point)
         print("Saved point!")
         processScoring(point)
     }
     
-    func updateServer(server: ServingPlayer){
-        self.server = server
-    }
     
     private func processScoring(_ point: Point){
         //1. Identify winner
@@ -47,13 +50,13 @@ class MatchViewModel: ObservableObject {
         
         //3. get or create current game
         if currentSet.games.isEmpty {
-            currentSet.games.append(GameScore(format: selectedFormat, server: server, currPlayerPoints: 0, oppPlayerPoints: 0))
+            currentSet.games.append(GameScore(gameType: selectedFormat.scoringType))
         }
         
         var currentGame = currentSet.games.last!
         
         //4. Apply point to Game
-        if winner == .currPlayer {
+        if winner == .curr {
             currentGame.currPlayerScored()
         } else{
             currentGame.oppPlayerScored()
@@ -66,46 +69,42 @@ class MatchViewModel: ObservableObject {
             finalizeGame(wonBy: winner!, in: &currentSet)
         }
         
-        //6. Replace Updated Set
-        match.score.sets[match.score.sets.count - 1] = currentSet
-    }
-    
-    
-    //add the format to ensure sets follow rules
-    private func finalizeGame(wonBy winner: Winner, in set: inout SetScore) {
-        if winner == .currPlayer {
-            set.currPlayerGames += 1
-        } else {
-            set.oppPlayerGames += 1
-        }
         
-        switchServerAfterGame()
-
-        if set.isSetComplete(format: match.format) {
-            // Set has a winner
-            print("IN SET COMPLETE!!!")
+        if currentSet.isSetComplete(format: match.format) {
+            currentSet.winner = winner
+            match.score.sets[match.score.sets.count - 1] = currentSet
+            
             //check if Match is over
             if match.score.isMatchOver(){
                 //display win?
                 print("MATCH OVAAAA!")
             }
             else{
-                match.score.createNewSet()
+//                match.score.createNewSet()
+                print("Match not over")
             }
-            
-//            if set.winner == .currPlayer || set.winner == .oppPlayer {
-//                Move to next set if match not over
-//                                        if !match.score.isMatchOver() {
-//                    match.score.sets.append(SetScore(format: match.format))
-//                }
-//            }
         }
-
-        // start new game
-        set.games.append(GameScore(format: selectedFormat,
-                                   server: server,
-                                   currPlayerPoints: 0,
-                                   oppPlayerPoints: 0))
+        
+        match.score.sets[match.score.sets.count - 1] = currentSet
+    }
+    
+    //add the format to ensure sets follow rules
+    private func finalizeGame(wonBy winner: Player, in set: inout SetScore) {
+        if winner == .curr {
+            set.currPlayerGames += 1
+        } else {
+            set.oppPlayerGames += 1
+        }
+        
+        print("\(set.currPlayerGames) : \(set.oppPlayerGames)")
+        
+        switchServerAfterGame()
+        
+//        // start new game
+//        set.games.append(GameScore(server: server,
+//                                   ads: selectedFormat.scoringType,
+//                                   currPlayerPoints: 0,
+//                                   oppPlayerPoints: 0))
     }
     
     private func isGameOver(game: GameScore) -> Bool {
@@ -128,6 +127,7 @@ class MatchViewModel: ObservableObject {
     private func switchServerAfterGame() {
         server = server == .curr ? .opp : .curr
     }
+
 }
 
 

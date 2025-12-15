@@ -12,13 +12,13 @@ struct SetScore: Codable {
     var games: [GameScore] = []
     var currPlayerGames: Int = 0
     var oppPlayerGames: Int = 0
-    var winner: Winner? = nil
+    var winner: Player? = nil
     
     init(format: MatchFormat){
         self.format = format
         self.currPlayerGames = 0
         self.oppPlayerGames = 0
-//        self.games.append(GameScore(format: format, server: server, currPlayerPoints: 0, oppPlayerPoints: 0))
+        self.games.append(GameScore(gameType: format.scoringType))
     }
     
     // Optional property to store tiebreak points if the set goes to a tiebreak
@@ -40,14 +40,26 @@ struct SetScore: Codable {
                 return false
             }
             else {
-                if p1 > p2{
-                    winner = .currPlayer
-                } else {winner = .oppPlayer}
                 return true
             }
         }
 
-        return true
+        return false
     }
     
+}
+extension SetScore {
+    mutating func currGameWon(){
+        currPlayerGames += 1
+    }
+    mutating func oppGameWon(){
+        oppPlayerGames += 1
+    }
+    
+    mutating func currPlayerWon(){
+        winner = .curr
+    }
+    mutating func oppPlayerWon(){
+        winner = .opp
+    }
 }

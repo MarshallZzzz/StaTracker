@@ -7,13 +7,8 @@
 
 import Foundation
 
-struct Player: Identifiable, Codable {
-    let id = UUID()
-    var name: String
-}
-
-enum Winner: Codable{
-    case currPlayer, oppPlayer
+enum Player: Codable{
+    case curr, opp
 }
 
 //Scoring

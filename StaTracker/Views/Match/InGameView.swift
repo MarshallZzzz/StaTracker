@@ -5,7 +5,7 @@ struct InGameView: View {
     @StateObject var vm: MatchViewModel
     @StateObject var fm: FlowViewModel
     
-    @State var server: ServingPlayer
+    @State var server: Player
     
     
     
@@ -29,7 +29,7 @@ struct InGameView: View {
                                 vm.savePoint(point)
                                 
                                 // 2. Reset FlowViewModel for the next point
-                                fm.currPoint = Point(server: vm.server)
+//                                fm.currPoint = Point(server: vm.server)
                                 fm.updateServer(server: vm.server)
                                 fm.startFlow()
                             }

@@ -17,6 +17,7 @@ import Foundation
 struct MatchScore: Codable {
     var sets: [SetScore] = []
     var currSetNum: Int = 0
+//    var currSet: SetScore? = nil
     
     let matchFormat: MatchFormat
     
@@ -24,32 +25,40 @@ struct MatchScore: Codable {
         self.matchFormat = format
         self.sets.append(SetScore(format: matchFormat))
     }
-
+    
     func isMatchOver() -> Bool {
         let setsToWin = matchFormat.setsToWin
         
-        if sets.filter({$0.winner == .currPlayer}).count >= setsToWin || sets.filter({$0.winner == .oppPlayer}).count >= setsToWin{
+        if sets.filter({$0.winner == .curr}).count >= setsToWin || sets.filter({$0.winner == .opp}).count >= setsToWin{
             return true
         }
         return false
     }
     
-    func getMatchWinner() -> Winner? {
+    func getMatchWinner() -> Player? {
         let setsToWin = matchFormat.setsToWin
-        let player1Sets = sets.filter {$0.winner == .currPlayer}.count
-        let player2Sets = sets.filter {$0.winner == .oppPlayer}.count
+        let player1Sets = sets.filter {$0.winner == .curr}.count
+        let player2Sets = sets.filter {$0.winner == .opp}.count
         
         if player1Sets >= setsToWin {
-            return .currPlayer
+            return .curr
         } else if player2Sets >= setsToWin {
-            return .oppPlayer
+            return .opp
         }
         
         return nil
     }
     
-    mutating func createNewSet(){
-        var set = SetScore(format: matchFormat)
+    mutating func createNewSet(format: MatchFormat){
+        //create set
+        //create game
+        //append game to set
+        
+        var newSet = SetScore(format: format)
+        var newGame = GameScore(gameType: format.scoringType)
+        
+        newSet.games.append(newGame)
+        self.sets.append(newSet)
     }
-    
+
 }

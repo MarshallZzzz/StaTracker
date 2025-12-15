@@ -19,7 +19,6 @@ struct ScoreboardView: View {
         1: "15",
         2: "30",
         3: "40",
-        4: "Ad"
     ]
  
     
@@ -49,7 +48,7 @@ struct ScoreboardView: View {
     private func initializeGameIfNeeded() {
          // Check if we need to create the first set and game
          if vm.match.score.sets.isEmpty {
-             let newGame = GameScore(format: vm.match.format, server: vm.server, currPlayerPoints: 0, oppPlayerPoints: 0)
+             let newGame = GameScore(gameType: vm.selectedFormat.scoringType)
              var newSet = SetScore(format: vm.match.format)
              newSet.games.append(newGame)
              vm.match.score.sets.append(newSet)
@@ -58,7 +57,7 @@ struct ScoreboardView: View {
          // Check if the current set needs a game
          if let currentSet = vm.match.score.sets.last,
             currentSet.games.isEmpty {
-             let newGame = GameScore(format: vm.match.format, server: vm.server, currPlayerPoints: 0, oppPlayerPoints: 0)
+             let newGame = GameScore(gameType: vm.selectedFormat.scoringType)
              vm.match.score.sets[vm.match.score.sets.count - 1].games.append(newGame)
          }
      }
@@ -73,7 +72,7 @@ struct ScoreboardView: View {
                  
                  HStack(spacing: 24) {
 
-                     if currentGame.format.scoringType == .ad && currentGame.currPlayerPoints >= 3 && currentGame.oppPlayerPoints >= 3 {
+                     if vm.selectedFormat.scoringType == .ad && currentGame.currPlayerPoints == 3 && currentGame.oppPlayerPoints == currentGame.currPlayerPoints {
                          setDeuce(difference: currentGame.currPlayerPoints - currentGame.oppPlayerPoints)
                      } else{
                          playerGameScore(
@@ -114,7 +113,7 @@ struct ScoreboardView: View {
             return lastGame
         } else {
             // Create first game
-            let newGame = GameScore(format: vm.match.format, server: vm.server, currPlayerPoints: 0, oppPlayerPoints: 0)
+            let newGame = GameScore(gameType: vm.selectedFormat.scoringType)
             if let index = vm.match.score.sets.firstIndex(where: { $0.id == set.id }) {
                 vm.match.score.sets[index].games.append(newGame)
             }

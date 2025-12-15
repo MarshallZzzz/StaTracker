@@ -5,14 +5,11 @@
 //  Created by Marshall Zhang on 11/24/25.
 //
 
-enum ServingPlayer: String, Codable{
-    case curr, opp
-}
 
 import Foundation
 struct Point: Identifiable, Codable {
     let id = UUID()
-    let server: ServingPlayer
+    let server: Player
     
     //Serve
     var firstServe: ServeData? = nil
@@ -24,6 +21,11 @@ struct Point: Identifiable, Codable {
     
     //Rally
     var rally: RallyData? = nil
-    var playerWon: Winner? = nil
+    
+    
+    var playerWon: Player? = nil
+    var currScore: String? = "0"
+    var oppScore: String? = "0"
+    var notes: String? = ""
 }
 

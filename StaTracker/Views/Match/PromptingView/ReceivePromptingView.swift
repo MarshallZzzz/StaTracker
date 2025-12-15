@@ -40,7 +40,7 @@ struct ReceivePromptingView: View {
                         
                         if value == .oppMiss { //second serve, if they miss against then win point
                             serveNumber = 1
-                            fm.setWinner(.currPlayer)
+                            fm.setWinner(.curr)
                             fm.finishPoint()
                             return
                         }
@@ -91,11 +91,11 @@ struct ReceivePromptingView: View {
         
                     if serveNumber == 1{
                         fm.updateFirstReceive(receive)
-                        fm.setWinner(.oppPlayer)
+                        fm.setWinner(.opp)
                         fm.finishPoint()
                     } else {
                         fm.updateSecondReceive(receive)
-                        fm.setWinner(.oppPlayer)
+                        fm.setWinner(.opp)
                         serveNumber = 1
                         fm.finishPoint()
                     }
@@ -119,7 +119,7 @@ struct ReceivePromptingView: View {
                         fm.advance(.rally(.rallyOutcome))
                     } else {
                         fm.currPoint.rally = nil
-                        fm.setWinner(.currPlayer)
+                        fm.setWinner(.curr)
                         fm.finishPoint()
                     }
                 }

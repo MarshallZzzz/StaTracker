@@ -13,7 +13,7 @@ class FlowViewModel: ObservableObject {
     
 //    @ObservedObject var vm: MatchViewModel
     // External input: who's serving this point
-    @Published var server: ServingPlayer   // .curr or .opp
+    @Published var server: Player   // .curr or .opp
     
     // Unified state machine
     @Published var state: PointFlowState = .start
@@ -23,7 +23,7 @@ class FlowViewModel: ObservableObject {
     
     var onPointFinished: ((Point) -> Void)?
     
-    init(server: ServingPlayer) {
+    init(server: Player) {
         self.currPoint = Point(server: server)
         self.server = server
         startFlow()
@@ -40,7 +40,7 @@ class FlowViewModel: ObservableObject {
         }
     }
     
-    func updateServer(server: ServingPlayer){
+    func updateServer(server: Player){
         self.server = server
     }
     
@@ -65,8 +65,25 @@ class FlowViewModel: ObservableObject {
         currPoint.rally = data
     }
     
-    func setWinner(_ win: Winner){
+    func setWinner(_ win: Player){
         currPoint.playerWon = win
+    }
+    
+    func setGameScore(currScore: Int, oppScore: Int){
+        let scoreMap: [Int: String] = [
+            0: "0",
+            1: "15",
+            2: "30",
+            3: "40"
+        ]
+        
+        currPoint.currScore = scoreMap[currScore]
+        currPoint.oppScore = scoreMap[oppScore]
+        
+    }
+    
+    func setNotes(notes: String){
+        currPoint.notes = notes
     }
     
     //Next step from serve, receive, or rally

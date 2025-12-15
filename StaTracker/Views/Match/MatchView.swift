@@ -23,7 +23,7 @@ struct MatchView: View {
     @State private var setFormat: setFormat = .fast4
     @State private var ad: ScoringType = .ad
     @State private var finale: FinalSetFormat = .regularSet
-    @State private var server: ServingPlayer = .curr
+    @State private var server: Player = .curr
     
     //UI
     @State private var areAdsEnabled: Bool = true
