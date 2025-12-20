@@ -38,7 +38,7 @@ struct RallyPromtpingView: View {
                     if rally.outcome == .win{
                         if value == .unforcedError{
                             fm.setWinner(.curr)
-                            fm.finishPoint()
+                            fm.advance(.rally(.notes))
                         }
                         else{
                             fm.advance(.rally(.playerShotSide))
@@ -48,7 +48,7 @@ struct RallyPromtpingView: View {
                             fm.advance(.rally(.playerShotSide))
                         } else {
                             fm.setWinner(.opp)
-                            fm.finishPoint()
+                            fm.advance(.rally(.notes))
                         }
                     }
                 }
@@ -93,7 +93,7 @@ struct RallyPromtpingView: View {
                     
                     if rally.outcome == .win{
                         fm.setWinner(.curr)
-                        fm.finishPoint()
+                        fm.advance(.rally(.notes))
                     } else {
                         fm.advance(.rally(.missedPosition))
                     }
@@ -106,7 +106,24 @@ struct RallyPromtpingView: View {
                     rally.missPosition = value
                     fm.updateRally(rally)
                     fm.setWinner(.opp)
-                    fm.finishPoint()
+                    fm.advance(.rally(.notes))
+                }
+                
+            case .notes:
+                VStack{
+                    Text("Notes")
+                        .font(.title)
+                    TextField("Add match notes...", text: $fm.currPoint.notes, axis: .vertical)
+                        .font(.body)
+                            .padding(16)
+                            .frame(minHeight: 250, alignment: .topLeading) // Large, predictable box
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(.white.opacity(0.1), lineWidth: 1)
+                            )
+                    PromptButton("Complete Point",action: fm.finishPoint)
                 }
                 
                 

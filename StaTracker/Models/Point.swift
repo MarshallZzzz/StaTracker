@@ -24,8 +24,34 @@ struct Point: Identifiable, Codable {
     
     
     var playerWon: Player? = nil
-    var currScore: String? = "0"
-    var oppScore: String? = "0"
-    var notes: String? = ""
+    var gameScore: GameScore? = nil
+    var notes: String = ""
+    
+//    mutating func setGameScore(currScore: Int, oppScore: Int){
+//        var scoreMap: [Int: String] = [
+//            0: "0",
+//            1: "15",
+//            2: "30",
+//            3: "40"
+//        ]
+//        
+//        if currScore >= 3 && oppScore >= 3 {
+//            var difference = currScore - oppScore
+//            scoreMap = [
+//                -1: "Ad - Out",
+//                 0: "Deuce",
+//                 1: "Ad - In",
+//                 2: "Win"
+//            ]
+//        }
+////        
+////        self.currScore = scoreMap[currScore]!
+////        self.oppScore = scoreMap[oppScore]!
+//        
+//    }
+    
+    mutating func setGameScore(gameScore: GameScore){
+        self.gameScore = gameScore
+    }
 }
 

@@ -32,6 +32,13 @@ enum ReceiveMade: String, CaseIterable, Codable {
     case oppMiss = "OPPONENT MISS"
 }
 
+enum ReceiveMissed: String, CaseIterable, Codable {
+    case ace = "OPP ACE"
+    case net = "NET"
+    case long = "LONG"
+    case wide = "WIDE"
+}
+
 enum ReceiveOutcome: String, CaseIterable, Codable {
     case winner = "WINNER"
     case forcedError = "FORCED ERROR"

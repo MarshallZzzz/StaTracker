@@ -37,6 +37,35 @@ struct GameScore: Codable {
         }
         
     }
+
+    func displayGameScore() -> String {
+        let scoreMap: [Int: String] = [
+            0: "0",
+            1: "15",
+            2: "30",
+            3: "40"
+        ]
+        
+        let difference = currPlayerPoints - oppPlayerPoints
+        
+        if ads == .ad
+        && currPlayerPoints >= 3
+        && oppPlayerPoints >= 3
+        && abs(difference) <= 2
+        {
+            if difference == 0{
+                return "Deuce"
+            } else if difference > 0{
+                return "Ad - In"
+            } else{
+                return "Ad - Out"
+            }
+        }
+        
+        let currPoints = scoreMap[currPlayerPoints] ?? "0"
+        let oppPoints = scoreMap[oppPlayerPoints] ?? "0"
+        return "\(currPoints)-\(oppPoints)"
+    }
 }
 
 extension GameScore{

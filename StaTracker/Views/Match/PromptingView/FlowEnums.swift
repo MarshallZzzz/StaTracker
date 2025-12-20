@@ -14,6 +14,7 @@ enum servingPrompts: Int {
     case missedType
     case missedPosition
     case SROutcome
+    case notes
     case null
 }
 
@@ -27,6 +28,7 @@ enum receivingPrompts: Int {
     case receivePosition
     case missedPosition
     case receiveOutcome
+    case notes
     case null
 }
 
@@ -42,6 +44,7 @@ enum rallyPrompts: Int {
     case shotType           // Groundstroke, slice, lob, approach, drive volley, volley, smash
     case shotTrajectory     // XCourt, Down the line, Drop Shot, Lob
     case missedPosition     // Net, Long, Down the Line wide, XCourt Wide
+    case notes
     case null               //Done
 }
 

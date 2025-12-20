@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct stepButton: View {
+struct PromptButton: View {
     let title: String
     let action: () -> Void
     

@@ -10,6 +10,7 @@ import Foundation
 
 struct Match: Identifiable, Codable {
     let id = UUID()
+    let date: Date//the date
 
     //initializing variables
     let currPlayer: String
@@ -20,7 +21,12 @@ struct Match: Identifiable, Codable {
     //defaulted variables
     var score: MatchScore //the collection of scores
     var points: [Point] //collection of all the points
-    let date: Date//the date
+    var winner: Player? = nil
+    
+    //set's flag
+    var inTieBreak: Bool = false
+    var setComplete: Bool = false
+    var matchComplete: Bool = false
     
     init(currPlayer: String, oppPlayer: String, startingServer: Player, format: MatchFormat) {
         //initialized
@@ -36,107 +42,164 @@ struct Match: Identifiable, Codable {
     }
 
     
-//    -> processScoring
-//        1. Identify Winner
-//        2. Get Current Set
-//        3. Get current Game or create new game for onAppear
-//        4. Apply point to game w/ update
-//        5.
-    //    if game is won{
-    //        add game to set
-    //        if set is won{
-    //            add set to match
-    //            if match is won{
-    //                break out
-    //            }
-    //            finalize set: create new Set
-    //        }
-    //        finalize game: switch serve and create new game
-    //    }
+/*
+ Concept function flow - add point
+ 
+ func add point
+    1. append point to the match.points array
+    2. save the winner of that point for updating scores
+ 
+ func apply point to the correct player of the game
+    4. update game
+ 
+    5. check if game is over
+        if game NOT over -> return out
+        if IS over
+            -> apply game to the set
+            -> 6
+ 
+ 
+    6. check if set is over
+        if set Not over -> return out
+        
+    7. check if match is over
+        if match Not over -> return out
+        if IS over -> set complete flag and update winner
+ */
     
     mutating func addPoint(_ point: Point) {
+        points.append(point)
+        print("CHecking Points: \(point)")
+        
+        /* <----------- Arranging variables -----------> */
+        //Arranging winner, set index, and game index to update score
+        guard let winner = point.playerWon else { return }
+        
+        //get the index of the current Set
+        guard let currSetIdx = score.sets.indices.last else{
+            print("Error: No set found")
+            return
+        }
+        
+        guard let currGameIdx = score.sets[currSetIdx].games.indices.last else{
+            print("Cannot find game")
+            return
+        }
+        
+        /* <----------- Apply Game point -----------> */
+        
+        //apply game point
+        winner == .curr ? score.sets[currSetIdx].games[currGameIdx].currPlayerScored() : score.sets[currSetIdx].games[currGameIdx].oppPlayerScored()
+                
+        //access the current game
+        let currentGame = score.sets[currSetIdx].games[currGameIdx]
+        
+        /* <----------- Updating Point's game score -----------> */
+        
+        //access the current point and update the game score
+        guard let currPointIdx = points.indices.last else{return}
+        points[currPointIdx].setGameScore(gameScore: currentGame)
+//        points[currPointIdx].setGameScore(currScore: currentGame.currPlayerPoints, oppScore: currentGame.oppPlayerPoints)
+        
+        
+        /* <----------- Check if Game is over, updating set, and updating server -----------> */
+        guard currentGame.isGameOver() else { return }
+        
+        //apply game to set
+        winner == .curr ? score.sets[currSetIdx].currGameWon() : score.sets[currSetIdx].oppGameWon()
+        
+        //switch server after game over
+        switchServerAfterGame()
+        
+        let currentSet = score.sets[currSetIdx]
+        
+        /* <----------- Checking if set is over -----------> */
+
+        guard currentSet.isSetComplete() else {
+            
+            if currentSet.isSetInTieBreak() {
+                inTieBreak = true
+                score.sets[currSetIdx].tieBreak = TieBreakScore(winAt: 7)
+                print("IN TIE BREAK AND ADDED TIE BREAK SCORE")
+            } else {
+                score.sets[currSetIdx].games.append(GameScore(gameType: format.scoringType))
+            }
+            return
+        }
+        
+        inTieBreak = false
+        score.sets[currSetIdx].winner = winner
+        
+        /* <----------- Check if Match is over -----------> */
+        //check if match complete
+        
+        if score.isMatchOver() {
+            matchComplete = true
+            self.winner = score.getMatchWinner()
+        } else{
+            if format.finalSetFormat == .matchTiebreak && score.inFinalSet(){
+                inTieBreak = true
+                
+                //create tie break instance and seetting to set
+                var superTieBreaker = TieBreakScore(winAt: 10)
+                var lastSet = SetScore(format: format)
+                lastSet.tieBreak = superTieBreaker
+                
+                
+                score.sets.append(lastSet)
+            } else{
+                score.sets.append(SetScore(format: format))
+            }
+        }
+    }
+    
+    mutating func addTieBreakPoint(_ point: Point){
         points.append(point)
         
         let winner = point.playerWon
         
-        //set current Set
-        guard var currentSet = score.sets.last else {
-            print("Error: Cannot find the current set to score in.")
-            return
-        }
-        
-//        //check if game is empty -> usually for first game
-//        if currentSet.games.isEmpty{
-//            //append game
-//            currentSet.games.append(GameScore(gameType: format.scoringType))
-//        }
-        
-        finalizeGame(wonBy: winner!, in: &currentSet)
-        
-    }
-    
-    //applying point & check if game is over
-    /*
-     1. Get current game
-     2. Add a point to the player that won
-     3. Check if game is over - isGameOver()
-        if game is over
-            append this game to set
-        
-            if set is over
-                append the set to match
-     
-                if match IS over
-                    get match winner
-                if match NOT over
-                    create new set with a new game
-     
-            if set not over
-                create new game
-     
-            switch server - within isGameOver is true
-     
-     */
-    mutating func finalizeGame(wonBy winner: Player, in currentSet: inout SetScore){
-        //functiong game checker
-        //applying point to game
-        guard var currentGame = currentSet.games.last else{
-            print("Error: No game found")
+        guard let currSetIdx = score.sets.indices.last else{
+            print("Error: No set found")
             return
         }
         
         if winner == .curr{
-            currentGame.currPlayerScored()
-        } else { currentGame.oppPlayerScored()}
-
-        //update current game
-        currentSet.games[currentSet.games.count - 1] = currentGame
-//        score.sets[score.sets.count - 1] = currentSet
-        print("I'm here with: \(currentGame.currPlayerPoints)")
-        print("Checing Match machine: \(score.sets[score.sets.count - 1])")
+            score.sets[currSetIdx].tieBreak?.currPlayerScored()
+        } else{
+            score.sets[currSetIdx].tieBreak?.oppPlayerScored()
+        }
         
-        //check if game is over
-        if currentGame.isGameOver(){
-            
-            //apply game score to set
-            if winner == .curr{
-                currentSet.currGameWon()
-            } else { currentSet.oppGameWon()}
-            score.sets[score.sets.count - 1] = currentSet
-            
-            if currentSet.isSetComplete(format: format){        //check if set is over
-                
-                if score.isMatchOver(){                         //check if match is over
-                    score.getMatchWinner()                      //get match winner
-                }
-                score.createNewSet(format: format)              //creates set and game
-            } else {
-                currentSet.games.append(GameScore(gameType: format.scoringType))    //create new game once game is over
-            }
+        guard let currSetTieBreaker = score.sets[currSetIdx].tieBreak else {
+            return
+        }
+        
+        //for serve switching
+        if abs(currSetTieBreaker.currPlayerPoints - currSetTieBreaker.oppPlayerPoints) % 2 == 1{
             switchServerAfterGame()
         }
+        
+        //check if tie break is over
+        if currSetTieBreaker.isTieBreakOver() == true {
+            
+            //add a point to set
+            winner == .curr ? score.sets[currSetIdx].currGameWon() : score.sets[currSetIdx].oppGameWon() //add game score to set
+            score.sets[currSetIdx].winner = winner
+            inTieBreak = false
+            
+        } else{
+            return
+        }
+
+        if score.isMatchOver() {
+            matchComplete = true
+            self.winner = score.getMatchWinner()
+        } else{
+            score.sets.append(SetScore(format: format))
+        }
+        
     }
-    
+
+    //switching server
     mutating func switchServerAfterGame() {
         server = server == .curr ? .opp : .curr
     }

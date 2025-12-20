@@ -11,6 +11,16 @@ struct ReceiveData: Codable {
     var made: ReceiveMade?
     var shotSide: PlayerShotSide?
     var trajectory: ShotTrajectory?
-    var miss: MissedPosition?
+    var miss: ReceiveMissed?
     var outcome: ReceiveOutcome?
+    
+    mutating func resetData(){
+        self.made = nil
+        self.shotSide = nil
+        self.trajectory = nil
+        self.miss = nil
+        self.outcome = nil
+    }
 }
+
+//10

@@ -7,9 +7,9 @@ import SwiftUI
 struct FlowControllerView: View {
     
     @ObservedObject var fm: FlowViewModel
-    @StateObject var vm: MatchViewModel
+    @ObservedObject var vm: MatchViewModel
     //@State var server: ServingPlayer
-    
+
     var body: some View {
         
         VStack {
@@ -29,9 +29,7 @@ struct FlowControllerView: View {
                 
                 //Create new point and update gamescore
             case .finished:
-                Text("Point Complete")
-                    .font(.largeTitle)
-                    .padding()
+                PromptButton("Match Complete",action: fm.onMatchFinished!)
                 
             default:
                 EmptyView()

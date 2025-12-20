@@ -7,12 +7,19 @@
 import Foundation
 
 struct SetScore: Codable {
+    //basic setup
     let id = UUID()
     let format: MatchFormat
     var games: [GameScore] = []
+    
+    //internal initialization
     var currPlayerGames: Int = 0
     var oppPlayerGames: Int = 0
+    
+    //completion variables
     var winner: Player? = nil
+    var tieBreak: TieBreakScore? = nil
+//    var tieBreakWinner: Player? = nil
     
     init(format: MatchFormat){
         self.format = format
@@ -20,31 +27,30 @@ struct SetScore: Codable {
         self.oppPlayerGames = 0
         self.games.append(GameScore(gameType: format.scoringType))
     }
-    
-    // Optional property to store tiebreak points if the set goes to a tiebreak
-    // This only has a value when a tiebreak is active or completed.
-    var tieBreakScore: tieBreakScore? = nil
 
-    // You can add a computed property to check if the set is won
-    // The exact logic depends heavily on the 'MatchFormat' rules.
-    mutating func isSetComplete(format: MatchFormat) -> Bool {
-        let p1 = currPlayerGames
-        let p2 = oppPlayerGames
+    // Checks to see if set is complete based on the given format
+    func isSetComplete() -> Bool {
         let gamesToWin = format.gamesPerSetToWin
         let tiebreakAt = format.playTieBreakAt
         
         //standard set checks
-        if (p1 >= gamesToWin || p2 >= gamesToWin){
-            if (p1 == tiebreakAt && p2 == tiebreakAt){
-                //add tiebreak
-                return false
-            }
-            else {
-                return true
-            }
+        if (currPlayerGames == gamesToWin + 1 && oppPlayerGames == gamesToWin) // check tieBreak score when curr player win
+        || (oppPlayerGames == gamesToWin + 1 && currPlayerGames == gamesToWin) // check tieBreak score when opp player win
+        || (currPlayerGames >= gamesToWin && currPlayerGames >= oppPlayerGames + 2) // check win by two conditions once curr reaches gamesToWin
+        || (oppPlayerGames >= gamesToWin && oppPlayerGames >= currPlayerGames + 2) // check win by two condition once opp reaches gamesToWin
+        {
+            return true
         }
-
         return false
+    }
+
+    
+    mutating func setWinner(_ winner: Player){
+        self.winner = winner
+    }
+    
+    func isSetInTieBreak() -> Bool {
+        return (currPlayerGames == format.playTieBreakAt && oppPlayerGames == format.playTieBreakAt)
     }
     
 }
@@ -54,12 +60,5 @@ extension SetScore {
     }
     mutating func oppGameWon(){
         oppPlayerGames += 1
-    }
-    
-    mutating func currPlayerWon(){
-        winner = .curr
-    }
-    mutating func oppPlayerWon(){
-        winner = .opp
     }
 }

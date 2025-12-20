@@ -141,7 +141,7 @@ struct MatchView: View {
                                 
                                 // 6 Game Pro Set
                                 MatchFormatButton(
-                                    title: "6 Game Pro Set",
+                                    title: "6 Game Set",
                                     isSelected: setFormat == .stdSet,
                                     action: { setFormat = .stdSet }
                                 )
@@ -195,8 +195,7 @@ struct MatchView: View {
                                     oppPlayer: yourOpponent,
                                     server: server,
                                     selectedFormat: MatchFormat(scoringType: ad, setFormat: setFormat, finalSetFormat: finale )),
-                                fm: FlowViewModel(server: server),
-                                server: server
+                                fm: FlowViewModel(server: server)
                             ),
                             isActive: $navigateToGame,
                             label: { EmptyView() } // Hide the link

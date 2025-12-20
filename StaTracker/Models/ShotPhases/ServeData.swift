@@ -8,10 +8,21 @@
 import Foundation
 
 struct ServeData: Codable {
-    var made: ServeMade?
-    var type: ServeType?
-    var madePosition: ServePosition?
-    var misType: ServeType?
-    var missPosition: MissedPosition?
-    var outcome: SROutcome?
+    var made: ServeMade? = nil
+    var type: ServeType? = nil
+    var madePosition: ServePosition? = nil
+    var misType: ServeType? = nil
+    var missPosition: MissedPosition? = nil
+    var outcome: SROutcome? = nil
+    
+    mutating func resetData(){
+        self.made = nil
+        self.type = nil
+        self.madePosition = nil
+        self.misType = nil
+        self.missPosition = nil
+        self.outcome = nil
+    }
 }
+
+//12

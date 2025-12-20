@@ -22,42 +22,62 @@ struct ReceivePromptingView: View {
                 Text(serveNumber == 1 ? "First Serve Return" : "Second Serve Return")
                     .font(.title)
                 EnumStepButtons(ReceiveMade.self) { value in
-                    receive.made = value
+//                    receive.made = value
+//                    print("Receive made: \(receive)")
                     
                     if serveNumber == 1{
-                        fm.updateFirstReceive(receive)
+                        fm.currPoint.firstReceive?.made = value
+                        receive.made = value
                         
-                        if value == .made {
-                            fm.currPoint.secondReceive = nil
-                        } else if value == .oppMiss {   // if opponents misses, automatically jumpt to the second
+                        if value == .oppMiss{ // reset data prep for receive # 2
+//                            self.receive = ReceiveData()
                             serveNumber = 2
-                            return
-                        } else {
+
+                        } else if value == .miss || value == .made {
+                            receive.made = value
+                            fm.currPoint.secondReceive = nil
                             fm.advance(.receive(.playerShotSide))
+                        } else {
+                            print("error serve 1")
                         }
-                    } else {
-                        fm.updateSecondReceive(receive)
+
                         
-                        if value == .oppMiss { //second serve, if they miss against then win point
-                            serveNumber = 1
+                    } else{
+                        fm.currPoint.secondReceive?.made = value
+                        receive.made = value
+                        serveNumber = 1
+                        
+                        if value == .oppMiss{ // player double fault, reset -> set winner -> finish game
+//                            receive.resetData()
+                            self.receive = ReceiveData()
                             fm.setWinner(.curr)
-                            fm.finishPoint()
-                            return
+                            fm.advance(.receive(.notes))
+//                            return
+
+                        } else if value == .miss || value == .made{
+                            receive.made = value
+                            fm.advance(.receive(.playerShotSide))
+                        } else {
+                            print("error serve 2")
                         }
                     }
                     
-                    fm.advance(.receive(.playerShotSide))
+                    print("Receive made: \(receive)")
                 }
+
             case .playerShotSide:
                 Text("Player Position")
                     .font(.title)
                 EnumStepButtons(PlayerShotSide.self){value in
                     receive.shotSide = value
+                    print("in player shot side: \(receive)")
                     
                     if serveNumber == 1{
-                        fm.updateFirstReceive(receive)
+//                        fm.updateFirstReceive(receive)
+                        fm.currPoint.firstReceive?.shotSide = value
                     } else {
-                        fm.updateSecondReceive(receive)
+//                        fm.updateSecondReceive(receive)
+                        fm.currPoint.secondReceive?.shotSide = value
                     }
                     
                     if receive.made == .made {
@@ -75,30 +95,29 @@ struct ReceivePromptingView: View {
                     receive.trajectory = value
                     
                     if serveNumber == 1{
-                        fm.updateFirstReceive(receive)
+                        fm.currPoint.firstReceive?.trajectory = value
                     } else {
-                        fm.updateSecondReceive(receive)
+                        fm.currPoint.secondReceive?.trajectory = value
                     }
                     fm.advance(.receive(.receiveOutcome))
                 }
 
-                
             case .missedPosition:
                 Text("Missed Position")
                     .font(.title)
-                EnumStepButtons(MissedPosition.self){value in
+                EnumStepButtons(ReceiveMissed.self){value in
                     receive.miss = value
         
                     if serveNumber == 1{
-                        fm.updateFirstReceive(receive)
-                        fm.setWinner(.opp)
-                        fm.finishPoint()
+                        fm.currPoint.firstReceive?.miss = value
                     } else {
-                        fm.updateSecondReceive(receive)
-                        fm.setWinner(.opp)
+                        fm.currPoint.secondReceive?.miss = value
                         serveNumber = 1
-                        fm.finishPoint()
                     }
+                    
+                    fm.setWinner(.opp)
+                    receive.resetData()
+                    fm.advance(.receive(.notes))
                 }
                 
             case .receiveOutcome:
@@ -109,10 +128,10 @@ struct ReceivePromptingView: View {
                     receive.outcome = value
                     
                     if serveNumber == 1{
-                        fm.updateFirstReceive(receive)
+                        fm.currPoint.firstReceive?.outcome = value
                     } else {
                         serveNumber = 1
-                        fm.updateSecondReceive(receive)
+                        fm.currPoint.secondReceive?.outcome = value
                     }
                     
                     if value == .rally{
@@ -120,8 +139,27 @@ struct ReceivePromptingView: View {
                     } else {
                         fm.currPoint.rally = nil
                         fm.setWinner(.curr)
-                        fm.finishPoint()
+                        receive.resetData()     //reset local ReceiveData
+                        fm.advance(.receive(.notes))
                     }
+                    
+                }
+                
+            case .notes:
+                VStack{
+                    Text("Notes")
+                        .font(.title)
+                    TextField("Add match notes...", text: $fm.currPoint.notes, axis: .vertical)
+                        .font(.body)
+                            .padding(16)
+                            .frame(minHeight: 250, alignment: .topLeading) // Large, predictable box
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(.white.opacity(0.1), lineWidth: 1)
+                            )
+                    PromptButton("Complete Point",action: fm.finishPoint)
                 }
                 
             default:

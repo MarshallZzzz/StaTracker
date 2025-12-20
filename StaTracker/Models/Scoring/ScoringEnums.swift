@@ -11,6 +11,31 @@ enum Player: Codable{
     case curr, opp
 }
 
+//Match format
+/*
+sets to win : Int
+ 
+setType : setType
+    case Fast 4
+    case Standard Set 6
+    case Pro set 8
+ 
+automatic tiebreaker for each set
+ 
+ if sets to win > 1
+ 
+ Final Set format : finalSetFormat
+    case set setType
+    case tieBreaker
+ 
+if final set is tieBreaker -> 10 points
+ 
+ Scoring type: ScoringType
+    case ad
+    case no adt
+ 
+ */
+
 //Scoring
 struct MatchFormat: Codable {
     let scoringType: ScoringType // Ad or No-Ad
@@ -28,6 +53,7 @@ struct MatchFormat: Codable {
             return 1
         }
     }
+    
     var gamesPerSetToWin: Int {
         switch setFormat {
         case .fast4:
@@ -49,6 +75,7 @@ struct MatchFormat: Codable {
             return 6
         }
     }
+    
 }
 
 extension MatchFormat {
@@ -63,16 +90,9 @@ enum setFormat: String, Codable {
     case fast4, stdSet, proSet, bestOf3, bestOf5
 }
 
-struct tieBreakScore: Codable {
-    let p1: Int //player
-    let p2: Int //opponent
-}
-
-//if add
-enum Advantage: String, Codable {
-    case deuce
-    case adIn
-    case adOut
+enum tieBreakFormat: String, Codable{
+    case standardTiebreaker
+    case superTiebreaker
 }
 
 //ad or no add
