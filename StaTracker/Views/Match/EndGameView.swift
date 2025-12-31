@@ -15,7 +15,7 @@ struct EndGameView: View {
     @State private var csvDocument: CSVDocument?
     
     private enum Metrics {
-        static let mainSpacing: CGFloat = 20
+        static let mainSpacing: CGFloat = 10
         static let gameScoreSize: CGFloat = 100
         static let separatorWidth: CGFloat = 50
         static let separatorHeight: CGFloat = 2
@@ -30,17 +30,69 @@ struct EndGameView: View {
             VStack(spacing: Metrics.mainSpacing) {
                 
                 //Header Match Complete
-                Text("Match Complete")
-                    .font(.system(size: 32, weight: .bold, design: .default))
-                    .foregroundColor(.black)
+                VStack{
+                    Text("Match Analysis")
+                        .font(.system(size: 32, weight: .bold, design: .default))
+                        .foregroundColor(.black)
+                    Text("Date Here")
+                        .font(.system(size: 16, weight: .regular, design: .default))
+                        .foregroundColor(.black)
+                }
+                .frame(maxWidth: .infinity)
                 
                 // Score display Module
                 setsHistory
                 
-                //Match Stats Module
-                Text("Match Stats")
-                    .font(.system(size: 32, weight: .bold, design: .default))
-                    .foregroundColor(.black)
+                //Overall Performance Stat display
+                GroupBox{
+                    VStack{
+                        VStack{
+                            HStack {
+                                Text("1st Serve %")
+                                Spacer()
+                                Text("65%")
+//                                Text(vm.stats.firstServePercentage.formatted(.percent.precision(.fractionLength(0))))
+                            }
+                            ProgressView(value: 0.65) {//vm.stats.firstServePercentage
+                            }
+                            .tint(.green)
+                            .scaleEffect(x: 1, y: 3, anchor: .center) // Increases height by 3x
+                            .padding(.vertical, 5) // Adds space for the increased thickness
+                        }
+                        VStack{
+                            HStack {
+                                Text("2nd Serve %")
+                                Spacer()
+//                                Text(vm.stats.secondServePercentage.formatted(.percent.precision(.fractionLength(0))))
+                                Text("65%")
+                            }
+                            ProgressView(value: 0.65) {//vm.stats.secondServePercentage
+                            }
+                            .tint(.green)
+                            .scaleEffect(x: 1, y: 3, anchor: .center) // Increases height by 3x
+                            .padding(.vertical, 5) // Adds space for the increased thickness
+                        }
+                        VStack{
+                            HStack {
+                                Text("Points Won")
+                                Spacer()
+//                                Text(vm.stats.rallyWonPercentage.formatted(.percent.precision(.fractionLength(0))))
+                                Text("65%")
+                            }
+                            ProgressView(value: 0.65) {//vm.stats.rallyWonPercentage
+                            }
+                            .tint(.green)
+                            .scaleEffect(x: 1, y: 3, anchor: .center) // Increases height by 3x
+                            .padding(.vertical, 5) // Adds space for the increased thickness
+                        }
+
+                    }
+                } label: {
+                    Label("Overall Performance", systemImage: "sport.tennis")
+                        .foregroundStyle(.black)
+                }
+                .groupBoxStyle(statGroupBoxStyle())
+                .padding(10)
                 
                 //Finishing buttons
                 Button(action: {
@@ -80,10 +132,8 @@ struct EndGameView: View {
     @ViewBuilder
     private var setsHistory: some View {
         if !vm.match.score.sets.isEmpty {
-            VStack{
-                Text("Final Score")
-                    .font(.title)
-                
+            GroupBox("Final Score"){
+
                 HStack(spacing: 12) {
                     VStack(alignment: .leading, spacing: 10) {
                         headerSpacer
@@ -98,13 +148,8 @@ struct EndGameView: View {
                     }
                 }
             }
-            .padding(.vertical, 16)
-            .padding(.horizontal, 20)
-            .background(
-                RoundedRectangle(cornerRadius: Metrics.cornerRadius)
-                    .fill(.black.opacity(0.08))
-                    .padding(.horizontal, 6)
-            )
+            .padding(10)
+            .groupBoxStyle(statGroupBoxStyle())
         }
     }
     
@@ -114,10 +159,17 @@ struct EndGameView: View {
             Text("Set \(index + 1)")
                 .font(.subheadline)
                 .fontWeight(.semibold)
-                .foregroundStyle(.black.opacity(0.6))
+                .foregroundStyle(.black)
+//                .foregroundStyle(.black.opacity(0.6))
             
-            setScoreLabel(set.currPlayerGames)
-            setScoreLabel(set.oppPlayerGames)
+            if set.tieBreak != nil && set.tieBreak!.winAt == 10 {
+                setSuperTieBreakLabel(set.tieBreak!.currPlayerPoints)
+                setSuperTieBreakLabel(set.tieBreak!.oppPlayerPoints)
+            } else{
+                setScoreLabel(set.currPlayerGames, set.tieBreak, .curr)
+                setScoreLabel(set.oppPlayerGames, set.tieBreak, .opp)
+            }
+            
         }
         .frame(width: Metrics.setColumnWidth)
     }
@@ -138,16 +190,57 @@ struct EndGameView: View {
         }
     }
     
-    private func setScoreLabel(_ score: Int) -> some View {
+    private func setSuperTieBreakLabel(_ score: Int) -> some View {
         Text("\(score)")
             .font(.headline)
             .fontWeight(.semibold)
             .foregroundStyle(.black)
             .frame(width: Metrics.setColumnWidth)
     }
-
+    
+    private func setScoreLabel(_ score: Int, _ tieBreakScore: TieBreakScore? = nil, _ player: Player) -> some View {
+        Text("\(score)")
+            .font(.headline)
+            .fontWeight(.semibold)
+            .foregroundStyle(.black)
+            .frame(width: Metrics.setColumnWidth)
+            .overlay(alignment: .topTrailing) { // Use .overlay with alignment
+                if tieBreakScore != nil{
+                    if player == .curr {
+                        Text("\(tieBreakScore!.currPlayerPoints)")
+                            .font(.caption2) // Use a much smaller font for the tie break
+                            .foregroundStyle(.black)
+                            .padding([.top, .trailing], 2) // Add small padding to position it inside the frame
+                    } else {
+                        Text("\(tieBreakScore!.oppPlayerPoints)")
+                            .font(.caption2) // Use a much smaller font for the tie break
+                            .foregroundStyle(.black)
+                            .padding([.top, .trailing], 2) // Add small padding to position it inside the frame
+                    }
+                }
+            }
+    }
 }
 
+struct statGroupBoxStyle: GroupBoxStyle{
+    func makeBody(configuration: Configuration) -> some View {
+        VStack{
+            configuration.label
+                .font(.headline)
+                .foregroundColor(.primary)
+            configuration.content
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color.white) // White background
+                .stroke(Color.black.opacity(0.3), lineWidth: 1) // Darker stroke
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous)) // Ensure the shadow applies to the rounded shape
+        // Add the shadow modifier to the entire view
+        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Subtle shadow
+    }
+}
 #Preview{
     var vm = MatchViewModel(currPlayer: "Roger Federer", oppPlayer: "Rafael Nadal", server: .curr, selectedFormat: .defaultFormat)
     EndGameView(vm: vm)

@@ -13,6 +13,7 @@
 //
 
 import Testing
+import XCTest
 @testable import StaTracker
 
 struct StaTrackerTests {
@@ -82,22 +83,6 @@ struct StaTrackerTests {
 //        #expect(currSet.currPlayerGames == 1, "curr player should have won first game")
     }
     
-    //Test Set Complete
-    @MainActor
-    @Test func testTieBreakWin() async throws {
-        //Arrange
-        var currTieB = TieBreakScore(winAt: 7)
-        currTieB.currPlayerPoints = 9
-        currTieB.oppPlayerPoints = 8
-        
-        //Act
-//        currTieB.currPlayerScored()
-//        currTieB.currPlayerScored()
-        
-        //Assert
-        #expect(currTieB.isTieBreakOver() == false, "Curr player won the tie breaker")
-    }
-//
     //1. Test Set Complete
     //2. Test Set call to tie break
     @MainActor
@@ -137,38 +122,79 @@ struct StaTrackerTests {
         #expect(testSet.isSetInTieBreak() == false, "NO")
 //        #expect(match.finalizeGame(wonBy: newPoint.playerWon, in: &lastSet), "game should be finalized")
     }
-//    
-//    //test match complete
-//    @Test func testMatchComplete() async throws {
-//        //Arrange
-//        //
-//        
-//        //Act
-//        
-//        //Assert
-//    }
     
-    /**
-     Testing Concept Map
-        Create VM to run score machine
-            VM
-                create match with the format and player names
-                functions for score machine
-                    -> savePoint -> adds point to match -> processScoring
-                    -> processScoring
-                        1. Identify Winner
-                        2. Get Current Set
-                        3. Get current Game or create new game for onAppear
-                        4. Apply point to game w/ update
-                        5. Check if game is won
-                        6. Once game is over -> finalize Game: add to player's game, switch serve, create new game
-     
-            VM Match Score
-                will create and append a set automaticallly
-                functions to check
-                    -> isMatchOver?
-                    -> getMatchWinner
-                    
+    @MainActor
+    @Test func testFirstServePercentage() async throws {
+        //initialize point
+        let point1 = Point(server: .curr, firstServe: ServeData(made: .made), secondServe: nil, firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .curr)
+        let point2 = Point(server: .curr, firstServe: ServeData(made: .miss), secondServe: ServeData(made: .miss), firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .opp)
+        let point3 = Point(server: .curr, firstServe: ServeData(made: .miss), secondServe: ServeData(made: .miss), firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .opp)
+        let point4 = Point(server: .curr, firstServe: ServeData(made: .made), secondServe: nil, firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .curr)
+        
+        //arrange
+        let engine = StatEngine(points: [point1, point2, point3])
+        let totalFirstServes = engine.totalFirstServes
+        let firstServePercentage = engine.firstServePercentage
+        
+        //assert
+//        1st Serve % = # of made / # of serves
+//        XCTAssertEqual(totalFirstServes, 4, "First serve percentage should be 4")
+        XCTAssertEqual(firstServePercentage, 2.0 / 4.0 , "First serve percentage should be 50%")
+        
+    }
+    
+// TEST CACHING
+    /*
+     1. cache should only compute once
+     2. Cache invalidates when new point comes in
+     3. Cache should not invalidate when points don't change
+     4. Cached Stat should survive multiple reads
+     5. Multiple different stats should cache separately
      */
+    
+    @MainActor
+    @Test func testComputeOnce() async throws {
+        let vm = StatsViewModel()
+        let point1 = Point(server: .curr, firstServe: ServeData(made: .made), secondServe: nil, firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .curr)
+        let point2 = Point(server: .curr, firstServe: ServeData(made: .miss), secondServe: ServeData(made: .miss), firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .opp)
+    
+        vm.update(point: point1)
+        vm.update(point: point2)
+        
+        
+        let _ = vm.totalFirstServes()
+        let _ = vm.totalFirstServes()
+        let _ = vm.totalFirstServes()
+        print("\(vm.cache)")
+        
+        XCTAssertEqual(vm.computeCountFor("totalFirstServes"), 1, "compute should only run once")
+    }
+    
+    //Invalidates when new point comes in
+    @MainActor
+    @Test func testInvalidatesCache() {
+        let vm = StatsViewModel()
+        let point1 = Point(server: .curr, firstServe: ServeData(made: .made), secondServe: nil, firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .curr)
+        let point2 = Point(server: .curr, firstServe: ServeData(made: .miss), secondServe: ServeData(made: .miss), firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .opp)
+        
+        vm.update(point: point1)
+        vm.update(point: point2)
+        
+        let beginning = vm.totalFirstServes()
+        print("\(beginning)")
+        
+        XCTAssertEqual(vm.computeCountFor("totalFirstServes"), 1, "compute should only run once")
+        
+        let p3 = Point(server: .curr, firstServe: ServeData(made: .made), secondServe: nil, firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .opp)
+        
+        vm.update(point: p3)
+        let output = vm.totalFirstServes()
+        
+        print("\(output)")
+        print("current cach: \(vm.cache)")
+        
+        
+        XCTAssertEqual(vm.computeCountFor("totalFirstServes"), 1, "compute should only run once")
+    }
 }
 

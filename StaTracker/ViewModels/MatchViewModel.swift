@@ -20,6 +20,7 @@ class MatchViewModel: ObservableObject {
     let currPlayer: String
     let oppPlayer: String
     let selectedFormat: MatchFormat
+    var stats: StatEngine
 
     
     init(currPlayer: String, oppPlayer: String, server: Player, selectedFormat: MatchFormat) {
@@ -28,10 +29,18 @@ class MatchViewModel: ObservableObject {
         self.selectedFormat = selectedFormat
         self.server = server
         self.match = Match(currPlayer: currPlayer, oppPlayer: oppPlayer, startingServer: server, format: selectedFormat)
+        self.stats = StatEngine(points: [])
     }
 
     func isMatchComplete() -> Bool {
+        computeStats()
         return match.matchComplete
+    }
+    
+    func computeStats() {
+        let finalizedStats = StatEngine(points: match.points)
+        stats = finalizedStats
+        
     }
 }
 

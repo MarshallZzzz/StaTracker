@@ -89,6 +89,6 @@ enum MissedPosition: String, CaseIterable, Codable {
 }
 
 enum PlayerShotSide: String, CaseIterable, Codable {
-    case forehand = "FOREHAND"
     case backhand = "BACKHAND"
+    case forehand = "FOREHAND"
 }

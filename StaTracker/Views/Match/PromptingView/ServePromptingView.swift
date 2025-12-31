@@ -25,7 +25,7 @@ struct ServePromptingView: View {
                     
                     if serveNumber == 1 {
                         fm.currPoint.firstServe?.made = value
-                        fm.currPoint.secondServe = nil
+//                        fm.currPoint.secondServe = nil
                     } else{
                         fm.currPoint.secondServe?.made = value
                     }
@@ -139,7 +139,6 @@ struct ServePromptingView: View {
                     if value == .rally {
                         fm.advance(.rally(.rallyOutcome))
                     } else {
-                        fm.currPoint.rally = nil
                         fm.setWinner(.curr)
 //                        fm.advance(.serve(.notes))
                         fm.finishPoint()

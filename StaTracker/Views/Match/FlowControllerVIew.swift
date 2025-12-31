@@ -8,6 +8,8 @@ struct FlowControllerView: View {
     
     @ObservedObject var fm: FlowViewModel
     @ObservedObject var vm: MatchViewModel
+    
+    var stat: StatEngine? = nil
     //@State var server: ServingPlayer
 
     var body: some View {
@@ -29,7 +31,12 @@ struct FlowControllerView: View {
                 
                 //Create new point and update gamescore
             case .finished:
-                PromptButton("Match Complete",action: fm.onMatchFinished!)
+                PromptButton("Match Complete")
+                {
+                    fm.onMatchFinished!()
+//                    stat!.points = vm.match.points
+                }
+                
                 
             default:
                 EmptyView()

@@ -120,7 +120,6 @@ struct Match: Identifiable, Codable {
             if currentSet.isSetInTieBreak() {
                 inTieBreak = true
                 score.sets[currSetIdx].tieBreak = TieBreakScore(winAt: 7)
-                print("IN TIE BREAK AND ADDED TIE BREAK SCORE")
             } else {
                 score.sets[currSetIdx].games.append(GameScore(gameType: format.scoringType))
             }
@@ -190,6 +189,7 @@ struct Match: Identifiable, Codable {
             return
         }
 
+        //if match is over
         if score.isMatchOver() {
             matchComplete = true
             self.winner = score.getMatchWinner()

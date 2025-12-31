@@ -75,29 +75,11 @@ class FlowViewModel: ObservableObject {
     func updateRally(_ data: RallyData) {
         currPoint.rally = data
     }
-//
-//    func updateScore(_ currScore: String, _ oppScore: String){
-//        currPoint.currScore = currScore
-//        currPoint.oppScore = oppScore
-//    }
-//    
+
     func setWinner(_ win: Player){
         currPoint.playerWon = win
     }
-    
-//    func setGameScore(currScore: Int, oppScore: Int){
-//        let scoreMap: [Int: String] = [
-//            0: "0",
-//            1: "15",
-//            2: "30",
-//            3: "40"
-//        ]
-//        
-//        currPoint.currScore = scoreMap[currScore]!
-//        currPoint.oppScore = scoreMap[oppScore]!
-//        
-//    }
-    
+
     func setNotes(notes: String){
         currPoint.notes = notes
     }

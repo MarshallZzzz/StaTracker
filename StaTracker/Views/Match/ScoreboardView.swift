@@ -54,7 +54,7 @@ struct ScoreboardView: View {
          if let currentSet = vm.match.score.sets.last,
             let currentGame = currentSet.games.last {
              VStack(spacing: 16) {
-                 vm.match.inTieBreak ? sectionHeader(title: "Tie Breaker") : sectionHeader(title: "Game Score")
+                 vm.match.inTieBreak ? sectionHeader(title: "\(currentSet.tieBreak?.winAt ?? 7) Point - Tie Breaker") : sectionHeader(title: "Game Score")
                  
                  HStack(spacing: 24) {
 
@@ -63,7 +63,8 @@ struct ScoreboardView: View {
                     && currentGame.oppPlayerPoints >= 3
                     && abs(currentGame.currPlayerPoints - currentGame.oppPlayerPoints) <= 2
                     && vm.match.inTieBreak == false{
-                         setDeuce(difference: currentGame.currPlayerPoints - currentGame.oppPlayerPoints)
+                         vm.match.server == .curr ? setDeuce(difference: currentGame.currPlayerPoints - currentGame.oppPlayerPoints)//curr up - sets as ad-in
+                                                  : setDeuce(difference: currentGame.oppPlayerPoints - currentGame.currPlayerPoints)//curr up - sets as ad out
                      } else if vm.match.inTieBreak {
                          playerGameScore(
                             name: vm.currPlayer,
@@ -101,31 +102,7 @@ struct ScoreboardView: View {
          }
          
      }
-    
-    private func getCurrentOrCreateSet() -> SetScore {
-        if let lastSet = vm.match.score.sets.last {
-            return lastSet
-        } else {
-            // Create first set
-            let newSet = SetScore(format: vm.match.format)
-            vm.match.score.sets.append(newSet)
-            return newSet
-        }
-    }
-    
-    private func getCurrentOrCreateGame(in set: SetScore) -> GameScore {
-        if let lastGame = set.games.last {
-            return lastGame
-        } else {
-            // Create first game
-            let newGame = GameScore(gameType: vm.selectedFormat.scoringType)
-            if let index = vm.match.score.sets.firstIndex(where: { $0.id == set.id }) {
-                vm.match.score.sets[index].games.append(newGame)
-            }
-            return newGame
-        }
-    }
-     
+
     private func playerGameScore(name: String, score: String, isServing: Bool) -> some View {
          VStack(spacing: 8) {
              Text(name)
@@ -183,8 +160,15 @@ struct ScoreboardView: View {
                 .fontWeight(.semibold)
                 .foregroundStyle(.white.opacity(0.6))
             
-            setScoreLabel(set.currPlayerGames)
-            setScoreLabel(set.oppPlayerGames)
+            //set super tie breaker label
+            if set.tieBreak != nil && set.tieBreak!.winAt == 10 {
+                setSuperTieBreakLabel(set.tieBreak!.currPlayerPoints)
+                setSuperTieBreakLabel(set.tieBreak!.oppPlayerPoints)
+            } else{ //set regular set and set's tie breaker label
+                setScoreLabel(set.currPlayerGames, set.tieBreak, .curr)
+                setScoreLabel(set.oppPlayerGames, set.tieBreak, .opp)
+            }
+            
         }
         .frame(width: Metrics.setColumnWidth)
         //        }
@@ -201,34 +185,35 @@ struct ScoreboardView: View {
             .foregroundStyle(.white.opacity(0.9))
     }
     
-    private func setScoreLabel(_ score: Int, tieBreakScore: TieBreakScore? = nil) -> some View {
+    private func setSuperTieBreakLabel(_ score: Int) -> some View {
+        Text("\(score)")
+            .font(.headline)
+            .fontWeight(.semibold)
+            .foregroundStyle(.white)
+            .frame(width: Metrics.setColumnWidth)
+    }
+    
+    
+    private func setScoreLabel(_ score: Int, _ tieBreakScore: TieBreakScore? = nil, _ player: Player) -> some View {
         Text("\(score)")
             .font(.headline)
             .fontWeight(.semibold)
             .foregroundStyle(.white)
             .frame(width: Metrics.setColumnWidth)
             .overlay(alignment: .topTrailing) { // Use .overlay with alignment
-                if tieBreakScore != nil {
-                    if tieBreakScore!.winner == .curr {
+                if tieBreakScore != nil{
+                    if player == .curr {
                         Text("\(tieBreakScore!.currPlayerPoints)")
                             .font(.caption2) // Use a much smaller font for the tie break
                             .foregroundStyle(.white)
                             .padding([.top, .trailing], 2) // Add small padding to position it inside the frame
-                    }
-                    else {
+                    } else {
                         Text("\(tieBreakScore!.oppPlayerPoints)")
                             .font(.caption2) // Use a much smaller font for the tie break
                             .foregroundStyle(.white)
                             .padding([.top, .trailing], 2) // Add small padding to position it inside the frame
                     }
                 }
-                
-//                if let tieBreak = tieBreakScore {
-////                    Text("\(tieBreak)")
-//                        .font(.caption2) // Use a much smaller font for the tie break
-//                        .foregroundStyle(.white)
-//                        .padding([.top, .trailing], 2) // Add small padding to position it inside the frame
-//                }
             }
     }
     
