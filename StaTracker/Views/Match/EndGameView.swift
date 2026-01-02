@@ -94,6 +94,10 @@ struct EndGameView: View {
                 .groupBoxStyle(statGroupBoxStyle())
                 .padding(10)
                 
+                //Insert Serve View
+                // Receive View
+                // Rally View
+                
                 //Finishing buttons
                 Button(action: {
                     // 1. Generate the CSV text
