@@ -9,7 +9,7 @@ import SwiftUI
 import Charts
 
 struct ServeChart: View {
-    @State var StatEngine: StatEngine
+//    @State var StatEngine: StatEngine
     
     //Serve Parameters
     @State var serveMade: ServeMade = .made
@@ -51,21 +51,22 @@ struct ServeChart: View {
                                 .foregroundStyle(.black)
                         }
                     }
+                    .chartLegend(.hidden)
                     .chartForegroundStyleScale([
-                        "made": .blue,  // Or your preferred primary color
-                        "miss": .gray   // Sets the "miss" sector to gray
+                        "Made": .blue,  // Or your preferred primary color
+                        "Miss": .gray   // Sets the "miss" sector to gray
                     ])
                     .chartBackground { chartProxy in
                         GeometryReader { geometry in
                             let frame = geometry[chartProxy.plotFrame!]
                             let minDimension = min(frame.width, frame.height)
                             VStack(spacing: minDimension * 0.02) {
-//                                Text("Serve Percentage")
-//                                    .font(.system(size:minDimension  * 0.08)) // 8% of chart size
-//                                    .foregroundStyle(.secondary)
-                                Text("First Serve %")
-                                    .font(.system(size: minDimension * 0.08, weight: .bold)) // 15% of chart size
+                                Text("First")
+                                    .font(.system(size: minDimension * 0.15, weight: .bold)) // 15% of chart size
                                     .foregroundColor(.primary)
+                                Text("serve %")
+                                    .font(.system(size: minDimension * 0.08)) // 8% of chart size
+                                    .foregroundStyle(.secondary)
                             }
                             .position(x: frame.midX, y: frame.midY)
                         }
@@ -86,16 +87,20 @@ struct ServeChart: View {
                         }
                     }
                     .chartLegend(.hidden)
+                    .chartForegroundStyleScale([
+                        "Made": .blue,  // Or your preferred primary color
+                        "Miss": .gray   // Sets the "miss" sector to gray
+                    ])
                     .chartBackground { chartProxy in
                         GeometryReader { geometry in
                             let frame = geometry[chartProxy.plotFrame!]
                             VStack {
-                                Text("Serve Percentage")
-                                    .font(.callout)
-                                    .foregroundStyle(.secondary)
-                                Text("Second Serve")
+                                Text("Second")
                                     .font(.title2.bold())
                                     .foregroundColor(.primary)
+                                Text("serve %")
+                                    .font(.callout)
+                                    .foregroundStyle(.secondary)
                             }
                             .position(x: frame.midX, y: frame.midY)
                         }
@@ -122,6 +127,6 @@ struct ServeChart: View {
     
     var points = [point1, point2]
     let StatEngine = StatEngine(points: points)
-    ServeChart(StatEngine: StatEngine)
+    ServeChart()
 }
 

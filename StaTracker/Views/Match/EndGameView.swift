@@ -26,7 +26,7 @@ struct EndGameView: View {
     
     
     var body: some View {
-        ZStack{
+        ScrollView{
             VStack(spacing: Metrics.mainSpacing) {
                 
                 //Header Match Complete
@@ -95,6 +95,7 @@ struct EndGameView: View {
                 .padding(10)
                 
                 //Insert Serve View
+                ServeChart()
                 // Receive View
                 // Rally View
                 
