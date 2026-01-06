@@ -11,7 +11,6 @@ struct ServeData: Codable {
     var made: ServeMade? = nil
     var type: ServeType? = nil
     var madePosition: ServePosition? = nil
-    var misType: ServeType? = nil
     var missPosition: MissedPosition? = nil
     var outcome: SROutcome? = nil
     
@@ -19,7 +18,6 @@ struct ServeData: Codable {
         self.made = nil
         self.type = nil
         self.madePosition = nil
-        self.misType = nil
         self.missPosition = nil
         self.outcome = nil
     }

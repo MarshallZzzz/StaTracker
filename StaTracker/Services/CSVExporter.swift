@@ -29,24 +29,22 @@ class CSVExporter {
         csv.append(matchRow)
         csv.append("\n")
         
-        csv = "PointIndex,GameScore,Serve/Receive,FirstServe,ServeMade,ServeType,ServePosition,MissType,MissPosition,ServeOutcome,SecondServe,ServeMade,ServeType,ServePosition,MissType,MissPosition,ServeOutcome,FirstReturn,ReturnMade,ReturnSide,ReturnTrajectory,ReturnMiss,ReturnOutcome,SecondReturn,ReturnMade,ReturnSide,ReturnTrajectory,ReturnMiss,ReturnOutcome,Rally,RallyOutcome,OutcomeType,ShotSide,PlayerPosition,ShotType,ShotTrajectory,MissPosition\n"
+        csv = "PointIndex,GameScore,Serve/Receive,FirstServe,ServeMade,ServeType,ServePosition,MissPosition,ServeOutcome,SecondServe,ServeMade,ServeType,ServePosition,MissPosition,ServeOutcome,FirstReturn,ReturnMade,ReturnSide,ReturnTrajectory,ReturnMiss,ReturnOutcome,SecondReturn,ReturnMade,ReturnSide,ReturnTrajectory,ReturnMiss,ReturnOutcome,Rally,RallyOutcome,OutcomeType,ShotSide,PlayerPosition,ShotType,ShotTrajectory,MissPosition\n"
         for (index, p) in match.points.enumerated(){
             let row = """
             \(index + 1),\
-            \(p.gameScore?.displayGameScore() ?? "0-0"),\
+            \(p.gameScore?.displayGameScore() ?? "0 - 0"),\
             \(p.server),\
             \(""),\
             \(p.firstServe?.made?.rawValue ?? ""),\
             \(p.firstServe?.type?.rawValue ?? ""),\
             \(p.firstServe?.madePosition?.rawValue ?? ""),\
-            \(p.firstServe?.misType?.rawValue ?? ""),\
             \(p.firstServe?.missPosition?.rawValue ?? ""),\
             \(p.firstServe?.outcome?.rawValue ?? ""),\
             \(""),\
             \(p.secondServe?.made?.rawValue ?? ""),\
             \(p.secondServe?.type?.rawValue ?? ""),\
             \(p.secondServe?.madePosition?.rawValue ?? ""),\
-            \(p.secondServe?.misType?.rawValue ?? ""),\
             \(p.secondServe?.missPosition?.rawValue ?? ""),\
             \(p.secondServe?.outcome?.rawValue ?? ""),\
             \(""),\

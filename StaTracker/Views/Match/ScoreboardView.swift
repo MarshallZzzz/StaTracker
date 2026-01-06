@@ -25,7 +25,7 @@ struct ScoreboardView: View {
     
     private enum Metrics {
         static let mainSpacing: CGFloat = 20
-        static let gameScoreSize: CGFloat = 100
+        static let gameScoreSize: CGFloat = 80
         static let separatorWidth: CGFloat = 50
         static let separatorHeight: CGFloat = 2
         static let setColumnWidth: CGFloat = 40
@@ -52,7 +52,7 @@ struct ScoreboardView: View {
      @ViewBuilder
      private var currentGameScore: some View {
          if let currentSet = vm.match.score.sets.last,
-            let currentGame = currentSet.games.last {
+            var currentGame = currentSet.games.last {
              VStack(spacing: 16) {
                  vm.match.inTieBreak ? sectionHeader(title: "\(currentSet.tieBreak?.winAt ?? 7) Point - Tie Breaker") : sectionHeader(title: "Game Score")
                  
@@ -71,6 +71,7 @@ struct ScoreboardView: View {
                             score: String(currentSet.tieBreak?.currPlayerPoints ?? 0),
                             isServing: vm.match.server == .curr
                          )
+                         .containerRelativeFrame(.horizontal, count: 3, span: 1, spacing: 0)
                          
                          scoreSeparator
                          
@@ -79,6 +80,7 @@ struct ScoreboardView: View {
                             score: String(currentSet.tieBreak?.oppPlayerPoints ?? 0),
                             isServing: vm.match.server == .opp
                          )
+                         .containerRelativeFrame(.horizontal, count: 3, span: 1, spacing: 0)
                          
                      } else{
                          playerGameScore(
@@ -86,6 +88,7 @@ struct ScoreboardView: View {
                             score: scoreMap[currentGame.currPlayerPoints] ?? "0",
                             isServing: vm.match.server == .curr
                          )
+                         .containerRelativeFrame(.horizontal, count: 3, span: 1, spacing: 0)
                          
                          scoreSeparator
                          
@@ -94,6 +97,7 @@ struct ScoreboardView: View {
                             score: scoreMap[currentGame.oppPlayerPoints] ?? "0",
                             isServing: vm.match.server == .opp
                          )
+                         .containerRelativeFrame(.horizontal, count: 3, span: 1, spacing: 0)
                      }
                      
                  }
@@ -104,16 +108,19 @@ struct ScoreboardView: View {
      }
 
     private func playerGameScore(name: String, score: String, isServing: Bool) -> some View {
-         VStack(spacing: 8) {
-             Text(name)
-                 .font(.title3)
-                 .fontWeight(.semibold)
-                 .foregroundStyle(.white.opacity(0.8))
-             
-             Text(score)
-                 .font(.system(size: Metrics.gameScoreSize, weight: .bold))
-                 .foregroundStyle(.white)
-             
+        //trim strings to display first name only
+        let firstName = name.split(separator: " ").first.map(String.init) ?? name
+
+        return VStack(spacing: 8) {
+            Text(firstName)
+                .font(.title3)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white.opacity(0.8))
+            
+            Text(score)
+                .font(.system(size: Metrics.gameScoreSize, weight: .bold))
+                .foregroundStyle(.white)
+            
              Text("🎾")
                  .font(.system(size: Metrics.tennisEmojiSize))
                  .opacity(isServing ? 1 : 0)
@@ -225,7 +232,6 @@ struct ScoreboardView: View {
     }
     
     private func setDeuce(difference: Int) -> some View{
-
         if difference == 1 { // curpplayer is up
             Text("Ad - In")
                 .font(.system(size: Metrics.gameScoreSize, weight: .bold))
@@ -239,6 +245,5 @@ struct ScoreboardView: View {
                 .font(.system(size: Metrics.gameScoreSize, weight: .bold))
                 .foregroundStyle(.white)
         }
-        
     }
 }

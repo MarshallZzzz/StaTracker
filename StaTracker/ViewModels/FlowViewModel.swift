@@ -55,27 +55,27 @@ class FlowViewModel: ObservableObject {
     func updateServer(_ server: Player) {
         self.server = server
     }
-    // MARK: - Assign values based on user input
-    func updateFirstServe(_ data: ServeData) {
-        currPoint.firstServe = data
-    }
-    
-    func updateSecondServe(_ data: ServeData) {
-        currPoint.secondServe = data
-    }
-    
-    func updateFirstReceive(_ data: ReceiveData) {
-        currPoint.firstReceive = data
-    }
-    
-    func updateSecondReceive(_ data: ReceiveData) {
-        currPoint.secondReceive = data
-    }
-    
-    func updateRally(_ data: RallyData) {
-        currPoint.rally = data
-    }
-
+//    // MARK: - Assign values based on user input
+//    func updateFirstServe(_ data: ServeData) {
+//        currPoint.firstServe = data
+//    }
+//    
+//    func updateSecondServe(_ data: ServeData) {
+//        currPoint.secondServe = data
+//    }
+//    
+//    func updateFirstReceive(_ data: ReceiveData) {
+//        currPoint.firstReceive = data
+//    }
+//    
+//    func updateSecondReceive(_ data: ReceiveData) {
+//        currPoint.secondReceive = data
+//    }
+//    
+//    func updateRally(_ data: RallyData) {
+//        currPoint.rally = data
+//    }
+//
     func setWinner(_ win: Player){
         currPoint.playerWon = win
     }

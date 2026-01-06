@@ -56,11 +56,11 @@ class StatsViewModel: ObservableObject {
         return computeCount[key] ?? 0
     }
     
-    func totalFirstServes() -> Int {
-        cached("totalFirstServes") {
-            stats.totalFirstServes
-        }
-    }
+//    func totalFirstServes() -> Int {
+//        cached("totalFirstServes") {
+//            stats.totalFirstServes
+//        }
+//    }
     
 }
 

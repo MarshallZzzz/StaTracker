@@ -21,6 +21,12 @@ struct GameScore: Codable {
         self.currPlayerPoints = 0
         self.oppPlayerPoints = 0
     }
+    
+    init(gameType: ScoringType, currS: Int, oppS: Int){
+        self.ads = gameType
+        self.currPlayerPoints = currS
+        self.oppPlayerPoints = oppS
+    }
 
     func isGameOver() -> Bool {
 
@@ -56,9 +62,9 @@ struct GameScore: Codable {
             if difference == 0{
                 return "Deuce"
             } else if difference > 0{
-                return "Ad - In"
+                return "Ad In"
             } else{
-                return "Ad - Out"
+                return "Ad Out"
             }
         }
         

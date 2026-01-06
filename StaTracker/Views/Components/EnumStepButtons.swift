@@ -56,6 +56,24 @@ struct EnumStepButtons<T: CaseIterable & RawRepresentable & Hashable>: View wher
     }
 }
 
+struct promptBackButton: View{
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action:{
+            withAnimation(.spring())
+            {action()}}){
+            Image(systemName: "chevron.left")
+                .font(.system(size: 14, weight: .semibold))
+                .padding(8) // Space between the icon and the circle border
+                .background(
+                    Circle()
+                        .stroke(Color.white, lineWidth: 1) // The circular border
+                )
+        }
+    }
+}
+
 // Extension to help chunk arrays into specified sizes
 extension Array {
     func chunked(into size: Int) -> [[Element]] {

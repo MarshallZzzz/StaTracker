@@ -9,46 +9,61 @@ import SwiftUI
 import Charts
 
 struct ServeChart: View {
-//    @State var StatEngine: StatEngine
+    @State var stat: StatEngine
     
-    //Serve Parameters
-    @State var serveMade: ServeMade = .made
-    @State var sMade: ServeMade = .made
+    init(stat: StatEngine){
+        _stat = State(initialValue: stat)
+    }
     
-    //Serve Made
-    @State var serveType: ServeType? = nil
-    @State var sType: ServeType = .flat
-    @State var servePosition: ServePosition? = nil
-    @State var serveOutcome: SROutcome? = nil
+    var FSPercentage: [(name: String, number: Double)]{
+        [
+            (name: "Made", number: stat.serveStats.firstServeInRate),
+            (name: "Miss", number: 1 - stat.serveStats.firstServeInRate)
+        ]
+    }
+    var SSPercentage: [(name: String, number: Double)]{
+        [
+            (name: "Made", number: stat.serveStats.secondServeInRate),
+            (name: "Miss", number: 1 - stat.serveStats.secondServeInRate)
+        ]
+    }
+
+    var FSTypePercentage: [(name: String, number: Double)]{
+        [
+            (name: "Flat", number: stat.serveStats.firstServeFlat),
+            (name: "Kick", number: stat.serveStats.firstServeKick),
+            (name: "Slice", number: stat.serveStats.firstServeSlice),
+            (name: "Spin", number: stat.serveStats.firstServeSpin)
+        ]
+    }
     
-    //Serve Miss
-    @State var serveMissPosition: MissedPosition? = nil
-    
-    let FSPercentage = [
-        (made: "Made", number: 0.49),
-        (made: "Miss", number: 0.51)
-    ]
-    let SSPercentage = [
-        (made: "Made", number: 0.63),
-        (made: "Miss", number: 0.37)
-    ]
+    var SSTypePercentage: [(name: String, number: Double)]{
+        [
+            (name: "Flat", number: stat.serveStats.secondServeFlat),
+            (name: "Kick", number: stat.serveStats.secondServeKick),
+            (name: "Slice", number: stat.serveStats.secondServeSlice),
+            (name: "Spin", number: stat.serveStats.secondServeSpin)
+        ]
+    }
     
     var body: some View {
-        GroupBox{
+        ScrollView{
+            //        GroupBox{
             VStack{
-                HStack{
-                    Chart(FSPercentage, id: \.made){ made, number in
+                HStack(spacing: 20){
+                    Chart(FSPercentage, id: \.name){ name, number in
                         SectorMark(
                             angle: .value("Amount", number),
                             innerRadius: .ratio(0.618),
-                            outerRadius: .inset(10),
+                            outerRadius: .inset(0.5),
                             angularInset: 1
                         )
-                        .foregroundStyle(by: .value("Serve made", made))
+                        .foregroundStyle(by: .value("Serve made", name))
                         .annotation(position: .overlay) {
                             Text("\((number).formatted(.percent.precision(.fractionLength(0))))") // Display number directly
                                 .font(.system(size: 10))
                                 .foregroundStyle(.black)
+                                .padding(50)
                         }
                     }
                     .chartLegend(.hidden)
@@ -72,14 +87,14 @@ struct ServeChart: View {
                         }
                     }
                     
-                    Chart(SSPercentage, id: \.made){ made, number in
+                    Chart(SSPercentage, id: \.name){ name, number in
                         SectorMark(
                             angle: .value("Amount", number),
                             innerRadius: .ratio(0.618),
-                            outerRadius: .inset(10),
+                            outerRadius: .inset(0.5),
                             angularInset: 1
                         )
-                        .foregroundStyle(by: .value("Serve made", made))
+                        .foregroundStyle(by: .value("Serve made", name))
                         .annotation(position: .overlay) {
                             Text("\((number).formatted(.percent.precision(.fractionLength(0))))") // Display number directly
                                 .font(.caption)
@@ -106,27 +121,46 @@ struct ServeChart: View {
                         }
                     }
                 }
+                .frame(height: 200)
                 
             }
-        } label: {
-            Label("Serve", systemImage: "")
-                .font(Font.largeTitle.bold())
-                .frame(maxWidth: .infinity, alignment: .center)
+            
+            //Service Points won
+            ProgressViewTemplatePercentage(title: "Service Points Won", percentage: stat.serveStats.servicePointsWonRate)
+            
+            //1st serve points won
+            ProgressViewTemplatePercentage(title: "1st Serve Points Won", percentage: stat.serveStats.firstServePointsWonRate)
+            
+            //2nd serve points won
+            ProgressViewTemplatePercentage(title: "2nd Serve Points Won", percentage: stat.serveStats.secondServePointsWonRate)
+            
+            
+            //Break Points Faced
+            
+            //Break Points Saved?
+            
+            //Service Games Played
+            
+            //aces
+            ProgressViewInt(title: "Aces", value: stat.serveStats.aces)
+            
+            // double faults
+            ProgressViewInt(title: "Double Fault", value: stat.serveStats.doubleFaults)
+            
+            PieChartTemplate(title: "1st Serve",subtitle: "Type", data: FSTypePercentage)
+            PieChartTemplate(title: "2nd Serve",subtitle: "Type", data: SSTypePercentage)
         }
-        .padding(10)
-        .groupBoxStyle(statGroupBoxStyle())
+        
     }
-    
-    
 }
-
-
-#Preview{
-    let point1 = Point(server: .curr, firstServe: ServeData(made: .made), secondServe: nil, firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .curr)
-    let point2 = Point(server: .curr, firstServe: ServeData(made: .miss), secondServe: ServeData(made: .miss), firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .opp)
-    
-    var points = [point1, point2]
-    let StatEngine = StatEngine(points: points)
-    ServeChart()
-}
+//
+//
+//#Preview{
+//    let point1 = Point(server: .curr, firstServe: ServeData(made: .made), secondServe: nil, firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .curr)
+//    let point2 = Point(server: .curr, firstServe: ServeData(made: .miss), secondServe: ServeData(made: .miss), firstReceive: nil, secondReceive: nil, rally: nil, playerWon: .opp)
+//    
+//    var points = [point1, point2]
+//    let StatEngine = StatEngine(points: points)
+//    ServeChart(stat: StatEngine)
+//}
 

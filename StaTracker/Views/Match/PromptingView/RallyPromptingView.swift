@@ -8,7 +8,6 @@ struct RallyPromtpingView: View {
     
     let step: rallyPrompts
     @ObservedObject var fm: FlowViewModel
-    @State private var rally = RallyData()
     
     @State private var win: Bool = false
     
@@ -21,21 +20,23 @@ struct RallyPromtpingView: View {
                 Text("Rally Outcome")
                     .font(.title)
                 EnumStepButtons(RallyOutcome.self){ value in
-                    rally.outcome = value
-                    fm.updateRally(rally)
+                    if value == .win {win = true} else {win = false}
+
+                    fm.currPoint.rally?.outcome = value
                     fm.advance(.rally(.outComeType))
                 }
                 
-                
             case .outComeType: // Winner, Forced Error, Unforced Error
-                Text("Outcome Type")
-                    .font(.title)
+                HStack{
+                    promptBackButton(action: {fm.advance(.rally(.rallyOutcome))})
+                    Text("Outcome Type")
+                        .font(.title)
+                }
                 EnumStepButtons(OutcomeType.self){value in
-                    rally.outcomeType = value
+                    fm.currPoint.rally?.outcomeType = value
                     
-                    fm.updateRally(rally)
                     
-                    if rally.outcome == .win{
+                    if win{
                         if value == .unforcedError{
                             fm.setWinner(.curr)
                             fm.advance(.rally(.notes))
@@ -54,44 +55,49 @@ struct RallyPromtpingView: View {
                 }
                 
             case .playerShotSide:
-                Text("Shot Side")
-                    .font(.title)
+                HStack{
+                    promptBackButton(action: {fm.advance(.rally(.outComeType))})
+                    Text("Shot Side")
+                        .font(.title)
+                }
                 EnumStepButtons(PlayerShotSide.self){value in
-                    rally.playerShotSide = value
-                    fm.updateRally(rally)
+                    fm.currPoint.rally?.playerShotSide = value
                     fm.advance(.rally(.playerPosition))
                 }
                 
             case .playerPosition:
-                Text("Player Position")
-                    .font(.title)
+                HStack{
+                    promptBackButton(action: {fm.advance(.rally(.playerShotSide))})
+                    Text("Court Position")
+                        .font(.title)
+                }
                 EnumStepButtons(PlayerPosition.self){value in
-                    rally.playerPosition = value
-                    fm.updateRally(rally)
+                    fm.currPoint.rally?.playerPosition = value
                     fm.advance(.rally(.shotType))
                 }
                 
 
             case .shotType:
-                Text("Shot Type")
-                    .font(.title)
+                HStack{
+                    promptBackButton(action: {fm.advance(.rally(.playerPosition))})
+                    Text("Shot Type")
+                        .font(.title)
+                }
                 EnumStepButtons(ShotType.self){value in
-                    rally.type = value
-                    
-                    fm.updateRally(rally)
-                    
+                    fm.currPoint.rally?.type = value
                     fm.advance(.rally(.shotTrajectory))
                 }
                 
             case .shotTrajectory:
-                Text("Shot Trajectory")
-                    .font(.title)
+                HStack{
+                    promptBackButton(action: {fm.advance(.rally(.shotType))})
+                    Text("Shot Direction")
+                        .font(.title)
+                }
                 EnumStepButtons(ShotTrajectory.self){value in
-                    rally.trajectory = value
+                    fm.currPoint.rally?.trajectory = value
                     
-                    fm.updateRally(rally)
-                    
-                    if rally.outcome == .win{
+                    if win{
                         fm.setWinner(.curr)
                         fm.advance(.rally(.notes))
                     } else {
@@ -100,19 +106,24 @@ struct RallyPromtpingView: View {
                 }
                 
             case .missedPosition:
-                Text("Missed Position")
-                    .font(.title)
+                HStack{
+                    promptBackButton(action: {fm.advance(.rally(.shotTrajectory))})
+                    Text("Missed Position")
+                        .font(.title)
+                }
                 EnumStepButtons(MissedPosition.self){value in
-                    rally.missPosition = value
-                    fm.updateRally(rally)
+                    fm.currPoint.rally?.missPosition = value
                     fm.setWinner(.opp)
                     fm.advance(.rally(.notes))
                 }
                 
             case .notes:
                 VStack{
-                    Text("Notes")
-                        .font(.title)
+                    HStack{
+                        promptBackButton(action: {fm.advance(.rally(.rallyOutcome))})
+                        Text("Notes")
+                            .font(.title)
+                    }
                     TextField("Add match notes...", text: $fm.currPoint.notes, axis: .vertical)
                         .font(.body)
                             .padding(16)
@@ -125,7 +136,6 @@ struct RallyPromtpingView: View {
                             )
                     PromptButton("Complete Point",action: fm.finishPoint)
                 }
-                
                 
             default:
                 EmptyView()

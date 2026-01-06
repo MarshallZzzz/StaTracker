@@ -73,7 +73,7 @@ struct Match: Identifiable, Codable {
         
         /* <----------- Arranging variables -----------> */
         //Arranging winner, set index, and game index to update score
-        guard let winner = point.playerWon else { return }
+        let winner = point.playerWon
         
         //get the index of the current Set
         guard let currSetIdx = score.sets.indices.last else{

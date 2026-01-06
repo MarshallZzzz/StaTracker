@@ -34,7 +34,7 @@ struct EndGameView: View {
                     Text("Match Analysis")
                         .font(.system(size: 32, weight: .bold, design: .default))
                         .foregroundColor(.black)
-                    Text("Date Here")
+                    Text("\(vm.match.date.formatted(.dateTime.month(.twoDigits).day(.twoDigits).year()))")
                         .font(.system(size: 16, weight: .regular, design: .default))
                         .foregroundColor(.black)
                 }
@@ -46,46 +46,9 @@ struct EndGameView: View {
                 //Overall Performance Stat display
                 GroupBox{
                     VStack{
-                        VStack{
-                            HStack {
-                                Text("1st Serve %")
-                                Spacer()
-                                Text("65%")
-//                                Text(vm.stats.firstServePercentage.formatted(.percent.precision(.fractionLength(0))))
-                            }
-                            ProgressView(value: 0.65) {//vm.stats.firstServePercentage
-                            }
-                            .tint(.green)
-                            .scaleEffect(x: 1, y: 3, anchor: .center) // Increases height by 3x
-                            .padding(.vertical, 5) // Adds space for the increased thickness
-                        }
-                        VStack{
-                            HStack {
-                                Text("2nd Serve %")
-                                Spacer()
-//                                Text(vm.stats.secondServePercentage.formatted(.percent.precision(.fractionLength(0))))
-                                Text("65%")
-                            }
-                            ProgressView(value: 0.65) {//vm.stats.secondServePercentage
-                            }
-                            .tint(.green)
-                            .scaleEffect(x: 1, y: 3, anchor: .center) // Increases height by 3x
-                            .padding(.vertical, 5) // Adds space for the increased thickness
-                        }
-                        VStack{
-                            HStack {
-                                Text("Points Won")
-                                Spacer()
-//                                Text(vm.stats.rallyWonPercentage.formatted(.percent.precision(.fractionLength(0))))
-                                Text("65%")
-                            }
-                            ProgressView(value: 0.65) {//vm.stats.rallyWonPercentage
-                            }
-                            .tint(.green)
-                            .scaleEffect(x: 1, y: 3, anchor: .center) // Increases height by 3x
-                            .padding(.vertical, 5) // Adds space for the increased thickness
-                        }
-
+                        ProgressViewTemplatePercentage(title: "1st Serve %", percentage: vm.stats.serveStats.firstServeInRate)
+                        ProgressViewTemplatePercentage(title: "2nd Serve %", percentage: vm.stats.serveStats.secondServeInRate)
+                        ProgressViewTemplatePercentage(title: "Points Won", percentage: vm.stats.rallyStats.rallyWinRate)
                     }
                 } label: {
                     Label("Overall Performance", systemImage: "sport.tennis")
@@ -95,7 +58,35 @@ struct EndGameView: View {
                 .padding(10)
                 
                 //Insert Serve View
-                ServeChart()
+                GroupBox{
+                    ServeChart(stat: vm.stats)
+                } label: {
+                    Label("Serve", systemImage: "")
+                        .font(Font.largeTitle.bold())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .padding(10)
+                .groupBoxStyle(statGroupBoxStyle())
+                
+                GroupBox{
+                    ReceiveChart(stat: vm.stats)
+                } label: {
+                    Label("Receive", systemImage: "")
+                        .font(Font.largeTitle.bold())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .padding(10)
+                .groupBoxStyle(statGroupBoxStyle())
+                
+                GroupBox{
+                    RallyChart(stat: vm.stats)
+                } label: {
+                    Label("Rally", systemImage: "")
+                        .font(Font.largeTitle.bold())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .padding(10)
+                .groupBoxStyle(statGroupBoxStyle())
                 // Receive View
                 // Rally View
                 
@@ -235,7 +226,7 @@ struct statGroupBoxStyle: GroupBoxStyle{
                 .foregroundColor(.primary)
             configuration.content
         }
-        .padding()
+        .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color.white) // White background

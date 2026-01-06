@@ -9,9 +9,11 @@ struct ReceivePromptingView: View {
     let step: receivingPrompts
     @ObservedObject var fm: FlowViewModel
     
-    @State private var receive = ReceiveData()
+//    @State private var receive = ReceiveData()
+    
     @State private var serveNumber = 1
     @State private var made: Bool = false
+    
     
     var body: some View {
         
@@ -19,80 +21,90 @@ struct ReceivePromptingView: View {
             switch step {
                 
             case .receiveMade:
-                Text(serveNumber == 1 ? "First Serve Return" : "Second Serve Return")
-                    .font(.title)
+                if serveNumber == 1 {
+                    Text("First Serve Return")
+                        .font(.title)
+                } else {
+                    HStack{
+                        Button(action: {
+                            withAnimation(.spring())
+                            {serveNumber = 1}
+                        }){
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .semibold))
+                                .padding(8) // Space between the icon and the circle border
+                                .background(
+                                    Circle()
+                                        .stroke(Color.white, lineWidth: 1) // The circular border
+                                )
+                        }
+                        Text("Second Serve Return ")
+                            .font(.title)
+                    }
+                }
                 EnumStepButtons(ReceiveMade.self) { value in
-//                    receive.made = value
-//                    print("Receive made: \(receive)")
                     
                     if serveNumber == 1{
                         fm.currPoint.firstReceive?.made = value
-                        receive.made = value
+
                         
                         if value == .oppMiss{ // reset data prep for receive # 2
-//                            self.receive = ReceiveData()
                             serveNumber = 2
 
-                        } else if value == .miss || value == .made {
-                            receive.made = value
-                            fm.currPoint.secondReceive = nil
+                        } else{
+                            if value == .made {made = true}
+                            else if value == .miss{made = false}
+                            
                             fm.advance(.receive(.playerShotSide))
-                        } else {
-                            print("error serve 1")
                         }
-
-                        
                     } else{
                         fm.currPoint.secondReceive?.made = value
-                        receive.made = value
-                        serveNumber = 1
-                        
+
                         if value == .oppMiss{ // player double fault, reset -> set winner -> finish game
-//                            receive.resetData()
-                            self.receive = ReceiveData()
+                            serveNumber = 1
                             fm.setWinner(.curr)
                             fm.advance(.receive(.notes))
-//                            return
 
-                        } else if value == .miss || value == .made{
-                            receive.made = value
-                            fm.advance(.receive(.playerShotSide))
                         } else {
-                            print("error serve 2")
+                            if value == .made {made = true}
+                            else if value == .miss{made = false}
+                            
+                            fm.advance(.receive(.playerShotSide))
                         }
                     }
                     
-                    print("Receive made: \(receive)")
                 }
 
             case .playerShotSide:
-                Text("Player Position")
-                    .font(.title)
+                HStack{
+                    promptBackButton(action: {fm.advance(.receive(.receiveMade))})
+                    Text("Player Side")
+                        .font(.title)
+                }
                 EnumStepButtons(PlayerShotSide.self){value in
-                    receive.shotSide = value
-                    print("in player shot side: \(receive)")
                     
                     if serveNumber == 1{
-//                        fm.updateFirstReceive(receive)
                         fm.currPoint.firstReceive?.shotSide = value
+                        
                     } else {
-//                        fm.updateSecondReceive(receive)
                         fm.currPoint.secondReceive?.shotSide = value
                     }
                     
-                    if receive.made == .made {
+                    if made {
                         fm.advance(.receive(.receivePosition))
-                    } else if receive.made == .miss {
+                    } else {
                         fm.advance(.receive(.missedPosition))
                     }
                 }
 
                 
             case .receivePosition:
-                Text("Returned Position")
-                    .font(.title)
+                HStack{
+                    promptBackButton(action: {fm.advance(.receive(.playerShotSide))})
+                    Text("Receive Position")
+                        .font(.title)
+                }
                 EnumStepButtons(ShotTrajectory.self){value in
-                    receive.trajectory = value
                     
                     if serveNumber == 1{
                         fm.currPoint.firstReceive?.trajectory = value
@@ -103,10 +115,12 @@ struct ReceivePromptingView: View {
                 }
 
             case .missedPosition:
-                Text("Missed Position")
-                    .font(.title)
+                HStack{
+                    promptBackButton(action: {fm.advance(.receive(.playerShotSide))})
+                    Text("Missed Position")
+                        .font(.title)
+                }
                 EnumStepButtons(ReceiveMissed.self){value in
-                    receive.miss = value
         
                     if serveNumber == 1{
                         fm.currPoint.firstReceive?.miss = value
@@ -116,16 +130,16 @@ struct ReceivePromptingView: View {
                     }
                     
                     fm.setWinner(.opp)
-                    receive.resetData()
                     fm.advance(.receive(.notes))
                 }
                 
             case .receiveOutcome:
-                Text("Return Outcome")
-                    .font(.title)
-                
+                HStack{
+                    promptBackButton(action: {fm.advance(.receive(.receivePosition))})
+                    Text("Receive Outcome")
+                        .font(.title)
+                }
                 EnumStepButtons(ReceiveOutcome.self){value in
-                    receive.outcome = value
                     
                     if serveNumber == 1{
                         fm.currPoint.firstReceive?.outcome = value
@@ -139,7 +153,6 @@ struct ReceivePromptingView: View {
                     } else {
                         fm.currPoint.rally = nil
                         fm.setWinner(.curr)
-                        receive.resetData()     //reset local ReceiveData
                         fm.advance(.receive(.notes))
                     }
                     
@@ -147,8 +160,11 @@ struct ReceivePromptingView: View {
                 
             case .notes:
                 VStack{
-                    Text("Notes")
-                        .font(.title)
+                    HStack{
+                        promptBackButton(action: {fm.advance(.receive(.receiveMade))})
+                        Text("Notes")
+                            .font(.title)
+                    }
                     TextField("Add match notes...", text: $fm.currPoint.notes, axis: .vertical)
                         .font(.body)
                             .padding(16)

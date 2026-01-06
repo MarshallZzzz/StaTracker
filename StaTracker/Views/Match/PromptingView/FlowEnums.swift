@@ -11,16 +11,12 @@ enum servingPrompts: Int {
     case serveMade = 1
     case serveType
     case servePosition
-    case missedType
     case missedPosition
     case SROutcome
     case notes
     case null
 }
 
-extension servingPrompts {
-    var progressIndex: CGFloat { CGFloat(self.rawValue) }
-}
 
 enum receivingPrompts: Int {
     case receiveMade = 1
@@ -45,6 +41,7 @@ enum rallyPrompts: Int {
     case shotTrajectory     // XCourt, Down the line, Drop Shot, Lob
     case missedPosition     // Net, Long, Down the Line wide, XCourt Wide
     case notes
+    case amt
     case null               //Done
 }
 
