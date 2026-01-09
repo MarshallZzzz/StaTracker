@@ -16,14 +16,17 @@ struct RallyChart: View{
         _stat = State(initialValue: stat.rallyStats)
     }
     
-    var rallyData: [(name: String, number: Double)]{
+    typealias dataTuple = (name: String, number: Double)
+    
+    var rallyData: [dataTuple]{
         [
             (name: "Won", number: stat.rallyWinRate),
             (name: "Lose", number: 1 - stat.rallyWinRate),
         ]
     }
     
-    var rallyWinType: [(name: String, number: Double)]{
+    //pie chart -> Outcome types(won: winners - forced/unforced errors) / totally rally points won
+    var rallyWinType: [dataTuple]{
         [
             (name: "Winner", number: stat.winnersRate),
             (name: "Forced Error", number: stat.forcedErrorsRate),
@@ -31,11 +34,21 @@ struct RallyChart: View{
         ]
     }
     
-    var playerPosition: [(name: String, number: Double)]{
+    
+    //Pie chart -> player positions / total rally points won
+    var playerPosition: [dataTuple]{
         [
             (name: "Baseline", number: stat.baselineRate),
             (name: "No Mans Land", number: stat.noMansLandRate),
             (name: "Net", number: stat.netRate)
+        ]
+    }
+//    
+    var missedPositions: [dataTuple]{
+        [
+            (name: "Net Miss", number: stat.netLost),
+            (name: "Long Miss", number: stat.longLost),
+            (name: "Wide Miss", number: stat.wideLost)
         ]
     }
     
@@ -68,27 +81,35 @@ struct RallyChart: View{
             PieChartTemplate(title: "Winning", subtitle: "type", data: rallyWinType)
             PieChartTemplate(title: "Position", subtitle: "Court", data: playerPosition)
             
-            //combine these
-//            PieChartTemplate(title: "Side", subtitle: "Player Shot", data: rallyWinType)
-//            PieChartTemplate(title: "Direction", subtitle: "Player Shot", data: rallyWinType)
-//
             
-            // SHOT SIDE AND TRAJECTORY
-//            Chart(trajectoryData, id: \.side) {item in
-//                BarMark(
-//                    x: .value("Shot Side", item.side),
-//                    y: .value("Percentage", item.value),
-//                    width: .inset(10)
-//                )
-//                .foregroundStyle(by: .value("Trajectory", item.direction))
-//            }
-//            .chartLegend(alignment: .center)
+            //unforced erros -
+            //pie chart - missed position
+            PieChartTemplate(title: "Missed", subtitle: "Position", data: missedPositions)
             
-            
-            
-            //MISSES
-            
+            //progress bar - # of unforced errors / total rally points lost
+            ProgressViewTemplatePercentage(title: "Unforced Errors", percentage: stat.unforcedRate)
 
+            //progress bar - backhand / # of unforced errors & forehand / # of unforced errors
+            ProgressViewTemplatePercentage(title: "Unforced Forehand Errors", percentage: stat.FHUnforcedRate)
+            ProgressViewTemplatePercentage(title: "Unforced Backhand Errors", percentage: stat.BHUnforcedRate)
+            
+            //Display Specifics
+            /*
+             SHOT TYPES - GroundStroke, Lob, Slice, DropShot, Half Volley, Approach, Drive Volley, Volley, Smash
+             Forehand
+                Won by: Winners
+                Won by: Forced Errors
+                Lost by: Unforced Errors
+             
+             Backhand
+                Won by: Winners
+                Won by: Forced Errors
+                Lost by: Unforced Errors
+                
+             
+             */
+            
+            
         }
         
     }

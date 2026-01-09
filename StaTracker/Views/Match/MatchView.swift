@@ -55,12 +55,14 @@ struct MatchView: View {
                     Text("Creating New Match")
                         .font(.system(size: 32, weight: .bold, design: .default))
                         .foregroundColor(.white)
+                        .frame(alignment: .center)
                     
                     Text("Set up your match details")
                         .font(.system(size: 14, weight: .regular, design: .default))
                         .foregroundColor(.gray)
+                        .frame(alignment: .center)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 20)
                 
@@ -222,10 +224,21 @@ struct MatchView: View {
                                 .cornerRadius(12)
                         }
                         .padding(.top, 12)
+//                        .fullScreenCover(isPresented: $navigateToGame){
+//                            InGameView(
+//                                vm: MatchViewModel( // Initialize the VM here with the final data
+//                                    currPlayer: yourPlayer,
+//                                    oppPlayer: yourOpponent,
+//                                    server: server,
+//                                    selectedFormat: MatchFormat(scoringType: ad, setFormat: setFormat, finalSetFormat: finale )),
+//                                fm: FlowViewModel(server: server)
+//                                )
+//                        }
                     }
                     .padding(.horizontal, 24)
                     .padding(.vertical, 24)
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
         }
     }

@@ -6,6 +6,7 @@ struct InGameView: View {
     @ObservedObject var fm: FlowViewModel
     
     @State private var navigateToEndgame: Bool = false
+    @FocusState private var isNotesFocused: Bool
     
     var body: some View {
         ZStack{
@@ -15,6 +16,15 @@ struct InGameView: View {
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
+            .navigationBarBackButtonHidden(true)
+                // A background that catches taps when the keyboard is active
+            if isNotesFocused {
+                Color.clear
+                    .contentShape(Rectangle()) // Makes transparent area clickable
+                    .onTapGesture {
+                        isNotesFocused = false
+                    }
+            }
             
             VStack(spacing: 0) {
                 ScoreboardView(vm:vm)
@@ -52,19 +62,6 @@ struct InGameView: View {
         .fullScreenCover(isPresented: $navigateToEndgame) {
             EndGameView(vm: vm)
                 }
-//                .onAppear {
-//                    fm.onPointFinished = { point in
-//                        vm.match.addPoint(point)
-//                        
-//                        // Only reset flow if match isn't over
-//                        if !vm.isMatchComplete() {
-//                            fm.currPoint = Point(server: vm.match.server)
-//                            fm.updateServer(server: vm.match.server)
-//                            fm.startFlow()
-//                        }
-//                    }
-//                }
-//        
     }
 }
 

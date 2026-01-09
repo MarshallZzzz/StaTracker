@@ -22,7 +22,7 @@ struct PieChartTemplate: View {
 
     
     var body: some View{
-        if (data.allSatisfy { $0.number == 0.0 }){
+        if (!data.allSatisfy { $0.number == 0.0 }){
             Chart(data, id: \.name){ name, number in
                 SectorMark(
                     angle: .value("Percentage", number),

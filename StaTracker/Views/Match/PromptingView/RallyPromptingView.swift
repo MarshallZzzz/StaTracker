@@ -10,6 +10,7 @@ struct RallyPromtpingView: View {
     @ObservedObject var fm: FlowViewModel
     
     @State private var win: Bool = false
+    @FocusState private var isNotesFocused: Bool
     
     var body: some View {
         
@@ -119,6 +120,7 @@ struct RallyPromtpingView: View {
                 
             case .notes:
                 VStack{
+                    
                     HStack{
                         promptBackButton(action: {fm.advance(.rally(.rallyOutcome))})
                         Text("Notes")
@@ -126,17 +128,29 @@ struct RallyPromtpingView: View {
                     }
                     TextField("Add match notes...", text: $fm.currPoint.notes, axis: .vertical)
                         .font(.body)
-                            .padding(16)
-                            .frame(minHeight: 250, alignment: .topLeading) // Large, predictable box
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(.white.opacity(0.1), lineWidth: 1)
-                            )
+                    // 1. Reserve vertical space so the whole box is tappable immediately
+                        .lineLimit(10, reservesSpace: true)
+                    // 2. Ensure text starts at the leading edge
+                        .multilineTextAlignment(.leading)
+                        .padding(16)
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(.white.opacity(0.1), lineWidth: 1)
+                        )
+                        .focused($isNotesFocused)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer() // Pushes button to the right
+                                Button("Done") {
+                                    isNotesFocused = false // 3. Dismiss keyboard
+                                }
+                            }
+                        }
                     PromptButton("Complete Point",action: fm.finishPoint)
                 }
-                
+
             default:
                 EmptyView()
             }
